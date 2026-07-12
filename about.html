@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — Linden</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,340;0,9..144,440;0,9..144,560;1,9..144,440&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --forest:#0E2A1F;
+    --forest-2:#123723;
+    --leaf:#1E8F52;
+    --leaf-bright:#2FBE73;
+    --paper:#FBFAF6;
+    --paper-2:#F1F6F1;
+    --sage:#9DB9A8;
+    --mint:#BEF0CF;
+    --line:rgba(14,42,31,.12);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--paper);
+    color:var(--forest);
+    overflow-x:hidden;
+  }
+  .font-serif{font-family:'Fraunces',serif; font-optical-sizing:auto;}
+  .font-mono{font-family:'IBM Plex Mono',monospace;}
+  .italic-serif{font-style:italic; font-weight:440;}
+
+  .grain{position:absolute; inset:0; pointer-events:none; opacity:.045; mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .watermark{
+    font-family:'Fraunces',serif;
+    font-weight:340;
+    color:var(--forest);
+    opacity:.035;
+    letter-spacing:-.04em;
+    user-select:none;
+    pointer-events:none;
+    font-size:clamp(3.2rem, 26vw, 15rem);
+    will-change:transform;
+  }
+
+  .rule{height:1px; background:var(--line);}
+
+  .fade-up{ opacity:0; transform:translateY(18px); animation:fadeUp .9s cubic-bezier(.19,1,.22,1) forwards; }
+  @keyframes fadeUp{ to{ opacity:1; transform:translateY(0); } }
+
+  .pulse-dot{ animation:pulse 2.4s ease-in-out infinite; }
+  @keyframes pulse{
+    0%,100%{ box-shadow:0 0 0 0 rgba(47,190,115,.4); }
+    50%{ box-shadow:0 0 0 7px rgba(47,190,115,0); }
+  }
+
+  .sweep{ position:relative; overflow:hidden; z-index:0; transition:transform .3s cubic-bezier(.34,1.56,.64,1); }
+  .sweep:active{ transform:scale(.96); }
+  .sweep::before{
+    content:''; position:absolute; inset:0; background:var(--leaf-bright);
+    transform:translateY(101%); transition:transform .45s cubic-bezier(.65,0,.35,1); z-index:-1;
+  }
+  .sweep:hover::before{ transform:translateY(0); }
+  .sweep-dark::before{ background:var(--forest-2); }
+
+  .underline-hover{ position:relative; }
+  .underline-hover::after{
+    content:''; position:absolute; left:0; bottom:-3px; width:0; height:1px;
+    background:currentColor; transition:width .35s cubic-bezier(.65,0,.35,1);
+  }
+  .underline-hover:hover::after{ width:100%; }
+
+  .ledger-card{
+    background:var(--paper-2);
+    border:1px solid var(--line);
+    box-shadow:0 1px 2px rgba(14,42,31,.04), 0 30px 60px -25px rgba(14,42,31,.28);
+    transition:transform .5s cubic-bezier(.19,1,.22,1), box-shadow .5s ease;
+    transform-style:preserve-3d;
+    will-change:transform;
+  }
+  .ledger-card:hover{
+    box-shadow:0 1px 2px rgba(14,42,31,.05), 0 40px 70px -25px rgba(14,42,31,.34);
+  }
+
+  .reveal{ opacity:0; transform:translateY(22px); transition:opacity .8s cubic-bezier(.19,1,.22,1), transform .8s cubic-bezier(.19,1,.22,1); }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+  .reveal.ring-pop{ transform:scale(.8) rotate(-8deg); }
+  .reveal.ring-pop.in{ transform:scale(1) rotate(0deg); transition:opacity 1s cubic-bezier(.19,1,.22,1), transform 1.1s cubic-bezier(.19,1,.22,1); }
+
+  .entry-row{ transition:background-color .4s ease, transform .4s cubic-bezier(.19,1,.22,1); }
+  .entry-row:hover{ background-color:var(--paper-2); transform:translateX(6px); }
+  .entry-num{ transition:color .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1); }
+  .entry-row:hover .entry-num{ color:var(--leaf); transform:scale(1.12); }
+
+  .mobile-panel{ max-height:0; overflow:hidden; transition:max-height .5s cubic-bezier(.19,1,.22,1); }
+  .mobile-panel.open{ max-height:20rem; }
+  .burger-line{ transition:transform .35s cubic-bezier(.65,0,.35,1), opacity .35s ease; transform-origin:center; }
+  .burger.open .burger-line:nth-child(1){ transform:translateY(6px) rotate(45deg); }
+  .burger.open .burger-line:nth-child(2){ opacity:0; }
+  .burger.open .burger-line:nth-child(3){ transform:translateY(-6px) rotate(-45deg); }
+
+  a, button{ -webkit-tap-highlight-color:transparent; }
+
+  .section-fade{
+    opacity:0; transform:translateY(28px); filter:blur(2px);
+    transition:opacity .9s cubic-bezier(.19,1,.22,1), transform .9s cubic-bezier(.19,1,.22,1), filter .9s ease;
+  }
+  .section-fade.in{ opacity:1; transform:translateY(0); filter:blur(0); }
+
+  #preloader{
+    position:fixed; inset:0; z-index:999; background:var(--paper);
+    display:flex; align-items:center; justify-content:center;
+    transition:opacity .7s cubic-bezier(.65,0,.35,1), visibility .7s;
+  }
+  #preloader.done{ opacity:0; visibility:hidden; pointer-events:none; }
+  body.loading{ overflow:hidden; height:100vh; }
+  .preload-mark{ position:relative; display:flex; flex-direction:column; align-items:center; gap:1.1rem; }
+  .preload-word{
+    font-family:'Fraunces',serif; font-weight:440; font-style:italic;
+    font-size:clamp(2.2rem, 6vw, 3.2rem); color:var(--forest);
+    letter-spacing:-.02em; opacity:0;
+    animation:preloadIn 1.1s cubic-bezier(.19,1,.22,1) .15s forwards;
+  }
+  @keyframes preloadIn{
+    0%{ opacity:0; transform:translateY(10px); letter-spacing:.15em; filter:blur(4px); }
+    100%{ opacity:1; transform:translateY(0); letter-spacing:-.02em; filter:blur(0); }
+  }
+  .preload-rule{ position:relative; width:180px; height:1px; background:var(--line); overflow:hidden; }
+  .preload-rule::after{
+    content:''; position:absolute; inset:0; width:40%; background:var(--leaf-bright);
+    animation:preloadSweep 1.4s cubic-bezier(.65,0,.35,1) infinite;
+  }
+  @keyframes preloadSweep{ 0%{ transform:translateX(-120%); } 100%{ transform:translateX(360%); } }
+  .preload-caption{
+    font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.22em; text-transform:uppercase;
+    color:rgba(14,42,31,.4); opacity:0; animation:preloadIn .8s ease .5s forwards;
+  }
+
+  .signature{ font-family:'Fraunces',serif; font-style:italic; font-weight:440; }
+
+  @media (prefers-reduced-motion: reduce){
+    .fade-up{ animation:none; opacity:1; transform:none; }
+    .pulse-dot{ animation:none; }
+    .reveal{ opacity:1; transform:none; }
+    .section-fade{ opacity:1; transform:none; filter:none; }
+    .ledger-card{ transition:none; }
+    .preload-word, .preload-caption{ animation:none; opacity:1; }
+    .preload-rule::after{ animation:none; }
+    html{ scroll-behavior:auto; }
+  }
+</style>
+</head>
+<body class="antialiased loading">
+
+<!-- ============ PRELOADER ============ -->
+<div id="preloader" aria-hidden="true">
+  <div class="preload-mark">
+    <span class="preload-word">Linden</span>
+    <div class="preload-rule"></div>
+    <span class="preload-caption">Turning to the front page</span>
+  </div>
+</div>
+
+<div class="relative">
+<div class="grain"></div>
+
+<!-- ============ MASTHEAD ============ -->
+<header class="relative z-30 max-w-[1400px] mx-auto px-6 md:px-12 pt-8">
+  <nav class="flex items-center justify-between">
+    <a href="index.html" class="flex items-baseline gap-2">
+      <span class="font-serif text-2xl tracking-tight">Linden</span>
+      <span class="hidden sm:inline font-mono text-[10px] tracking-[0.2em] uppercase text-[var(--forest)]/40">Est. 2019</span>
+    </a>
+    <div class="hidden md:flex items-center gap-10 text-xs font-mono uppercase tracking-[0.12em] text-[var(--forest)]/65">
+      <a href="index.html" class="underline-hover">Personal</a>
+      <a href="index.html" class="underline-hover">Business</a>
+      <a href="index.html#features" class="underline-hover">Pricing</a>
+      <a href="about.html" class="underline-hover" style="color:var(--forest)">About</a>
+    </div>
+    <div class="flex items-center gap-4 sm:gap-6">
+      <a href="login.html" class="hidden sm:inline text-xs font-mono uppercase tracking-[0.12em] underline-hover">Log in</a>
+      <a href="register.html" class="sweep hidden sm:inline-flex items-center text-xs font-mono uppercase tracking-[0.12em] text-white px-6 py-3 border border-[var(--forest)]" style="background:var(--forest)">
+        Open account
+      </a>
+      <button id="burgerBtn" aria-label="Open menu" aria-expanded="false" class="burger md:hidden w-10 h-10 flex flex-col items-center justify-center gap-[5px]">
+        <span class="burger-line block w-6 h-[1.5px]" style="background:var(--forest)"></span>
+        <span class="burger-line block w-6 h-[1.5px]" style="background:var(--forest)"></span>
+        <span class="burger-line block w-6 h-[1.5px]" style="background:var(--forest)"></span>
+      </button>
+    </div>
+  </nav>
+  <div class="rule mt-7"></div>
+
+  <div id="mobilePanel" class="mobile-panel md:hidden">
+    <div class="flex flex-col gap-6 py-8 text-sm font-mono uppercase tracking-[0.12em]">
+      <a href="index.html" class="underline-hover w-fit">Personal</a>
+      <a href="index.html" class="underline-hover w-fit">Business</a>
+      <a href="index.html#features" class="underline-hover w-fit">Pricing</a>
+      <a href="about.html" class="underline-hover w-fit" style="color:var(--leaf)">About</a>
+      <a href="login.html" class="underline-hover w-fit">Log in</a>
+      <a href="register.html" class="sweep inline-flex items-center justify-center text-white px-6 py-3.5 border border-[var(--forest)] w-full" style="background:var(--forest)">
+        Open account
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="relative max-w-[1400px] mx-auto px-6 md:px-12 pt-6 pb-24 overflow-hidden">
+
+  <div id="watermark" class="watermark absolute -top-6 md:top-2 left-1/2 -translate-x-1/2 leading-none whitespace-nowrap select-none">
+    About
+  </div>
+
+  <div class="relative grid lg:grid-cols-[1.05fr_0.95fr] gap-16 lg:gap-14 items-end pt-16 md:pt-24">
+
+    <div>
+      <p class="fade-up font-mono text-[11px] tracking-[0.22em] uppercase text-[var(--leaf)] mb-7" style="animation-delay:.05s">
+        001 — Our Story
+      </p>
+      <h1 class="fade-up font-serif font-medium leading-[0.96] tracking-tight" style="animation-delay:.18s; font-size:clamp(2.75rem, 8.5vw, 5rem)">
+        An account we'd
+        <br>
+        actually want
+        <br>
+        <span class="italic-serif" style="color:var(--leaf)">ourselves.</span>
+      </h1>
+      <p class="fade-up mt-8 text-lg text-[var(--forest)]/65 max-w-md leading-relaxed" style="animation-delay:.32s">
+        Linden started as a complaint, not a business plan. Three overdraft fees in one month, a hold-music apology, and a decision to just build the account we kept wishing existed.
+      </p>
+
+      <div class="fade-up mt-10 flex flex-wrap items-center gap-5" style="animation-delay:.45s">
+        <a href="register.html" class="sweep px-8 py-4 text-white text-sm font-medium tracking-wide" style="background:var(--forest)">
+          Open your account
+        </a>
+        <a href="#principles" class="group inline-flex items-center gap-3 text-sm font-medium tracking-wide">
+          <span class="w-11 h-11 rounded-full border border-[var(--forest)]/25 flex items-center justify-center group-hover:border-[var(--forest)] transition-colors">▾</span>
+          Read what we believe
+        </a>
+      </div>
+
+      <div class="fade-up mt-14 sm:mt-16 grid grid-cols-3 gap-6 sm:flex sm:items-center sm:gap-10 max-w-lg" style="animation-delay:.6s">
+        <div>
+          <p class="font-serif text-2xl sm:text-3xl"><span class="countup" data-target="2019" data-decimals="0">0</span></p>
+          <p class="text-[10px] sm:text-[11px] font-mono uppercase tracking-[0.1em] text-[var(--forest)]/45 mt-2">Founded</p>
+        </div>
+        <div class="hidden sm:block w-px h-10 bg-[var(--line)]"></div>
+        <div>
+          <p class="font-serif text-2xl sm:text-3xl"><span class="countup" data-target="260" data-decimals="0">0</span><span class="italic-serif" style="color:var(--leaf)">k</span></p>
+          <p class="text-[10px] sm:text-[11px] font-mono uppercase tracking-[0.1em] text-[var(--forest)]/45 mt-2">Members</p>
+        </div>
+        <div class="hidden sm:block w-px h-10 bg-[var(--line)]"></div>
+        <div>
+          <p class="font-serif text-2xl sm:text-3xl">$<span class="countup" data-target="1.9" data-decimals="1">0</span><span class="italic-serif" style="color:var(--leaf)">B</span></p>
+          <p class="text-[10px] sm:text-[11px] font-mono uppercase tracking-[0.1em] text-[var(--forest)]/45 mt-2">Deposits protected</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: a note from the founder, in the same ledger-card language as the homepage statement -->
+    <div class="fade-up relative" style="animation-delay:.4s">
+      <div id="ledgerCard" class="ledger-card p-8 sm:p-10">
+        <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--forest)]/45 mb-6">A note, from the founder</p>
+        <p class="font-serif italic-serif text-xl sm:text-2xl leading-snug" style="color:var(--forest)">
+          "I opened four accounts trying to dodge one overdraft fee. That was the whole idea, honestly — build the bank I kept wishing existed, and stop apologizing for the one I had."
+        </p>
+        <div class="mt-8 rule"></div>
+        <div class="mt-6 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0 font-mono text-sm" style="background:var(--forest); color:var(--paper)">AR</div>
+          <div>
+            <p class="signature text-lg" style="color:var(--forest)">Alex Rivera</p>
+            <p class="font-mono text-[11px] text-[var(--forest)]/45 uppercase tracking-[0.1em] mt-0.5">Founder &amp; CEO, Linden</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+</div>
+
+<!-- ============ ORIGIN ============ -->
+<section id="origin" class="section-fade relative max-w-[1400px] mx-auto px-6 md:px-12 py-24 md:py-32">
+  <div class="rule mb-16"></div>
+
+  <div class="reveal grid lg:grid-cols-[0.7fr_1.3fr] gap-10 lg:gap-16 items-start">
+    <p class="font-mono text-[11px] tracking-[0.22em] uppercase text-[var(--leaf)]">
+      002 — Where it started
+    </p>
+    <div class="max-w-2xl">
+      <h2 class="font-serif font-medium leading-[1.05] text-3xl sm:text-4xl lg:text-[2.6rem] tracking-tight mb-8">
+        Nobody set out to start a bank. We set out to stop being <span class="italic-serif" style="color:var(--leaf)">annoyed.</span>
+      </h2>
+      <div class="space-y-6 text-[var(--forest)]/70 leading-relaxed">
+        <p>In 2018, Alex Rivera was running a small design studio and doing what most business owners do: juggling three accounts across two banks, none of which spoke to each other, all of which found new fees to invent. A missed transfer triggered an overdraft charge, then a second one for the "insufficient funds" notice about the first.</p>
+        <p>The call to sort it out took forty minutes, most of it hold music. The apology, when it finally came, changed nothing — the fees stayed. That afternoon became the first page of a notebook that eventually became Linden: a running list of everything a bank does that it has no good reason to do.</p>
+        <p>Eighteen months later, with two former bank examiners and a partner bank willing to build something stricter than regulation required, Linden opened its first hundred accounts by invitation only — mostly friends of friends, all of them warned it might break. It didn't. The waitlist that followed grew for two years before we let it grow fast.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRINCIPLES — itemized ledger, same device as the homepage feature list ============ -->
+<section id="principles" class="section-fade relative max-w-[1400px] mx-auto px-6 md:px-12 py-24 md:py-32">
+  <div class="rule mb-16"></div>
+
+  <div class="reveal grid lg:grid-cols-[0.7fr_1.3fr] gap-10 lg:gap-16 items-start mb-16">
+    <p class="font-mono text-[11px] tracking-[0.22em] uppercase text-[var(--leaf)]">
+      003 — What we believe
+    </p>
+    <h2 class="font-serif font-medium leading-[1.02] text-4xl sm:text-5xl lg:text-[3.2rem] tracking-tight max-w-2xl">
+      Five rules we've never
+      <span class="italic-serif" style="color:var(--leaf)">quietly</span> broken.
+    </h2>
+  </div>
+
+  <div class="border-t border-[var(--line)]">
+
+    <div class="reveal entry-row group grid md:grid-cols-[80px_1.4fr_2fr_auto] gap-4 md:gap-10 items-center py-8 md:py-10 border-b border-[var(--line)] px-2 -mx-2">
+      <span class="entry-num font-serif text-2xl text-[var(--forest)]/30">01</span>
+      <h3 class="font-serif text-2xl">No fine print</h3>
+      <p class="text-[var(--forest)]/60 text-sm leading-relaxed max-w-md">If a policy needs a footnote to defend it, we rewrite the policy — not the footnote. Every statement is written to be read, not decoded.</p>
+      <span class="hidden md:inline font-mono text-[11px] text-[var(--forest)]/35 uppercase tracking-wide justify-self-end">Since day one</span>
+    </div>
+
+    <div class="reveal entry-row group grid md:grid-cols-[80px_1.4fr_2fr_auto] gap-4 md:gap-10 items-center py-8 md:py-10 border-b border-[var(--line)] px-2 -mx-2" style="transition-delay:.08s">
+      <span class="entry-num font-serif text-2xl text-[var(--forest)]/30">02</span>
+      <h3 class="font-serif text-2xl">Slow before big</h3>
+      <p class="text-[var(--forest)]/60 text-sm leading-relaxed max-w-md">We ran on a waitlist for two years before opening up, because a bank that breaks under its own growth breaks its members first.</p>
+      <span class="hidden md:inline font-mono text-[11px] text-[var(--forest)]/35 uppercase tracking-wide justify-self-end">Since day one</span>
+    </div>
+
+    <div class="reveal entry-row group grid md:grid-cols-[80px_1.4fr_2fr_auto] gap-4 md:gap-10 items-center py-8 md:py-10 border-b border-[var(--line)] px-2 -mx-2" style="transition-delay:.16s">
+      <span class="entry-num font-serif text-2xl text-[var(--forest)]/30">03</span>
+      <h3 class="font-serif text-2xl">A person, always</h3>
+      <p class="text-[var(--forest)]/60 text-sm leading-relaxed max-w-md">Call us and a person picks up — not a queue, not a bot pretending to be one. That was true at account one hundred, and it's true at account 260,000.</p>
+      <span class="hidden md:inline font-mono text-[11px] text-[var(--forest)]/35 uppercase tracking-wide justify-self-end">Since day one</span>
+    </div>
+
+    <div class="reveal entry-row group grid md:grid-cols-[80px_1.4fr_2fr_auto] gap-4 md:gap-10 items-center py-8 md:py-10 border-b border-[var(--line)] px-2 -mx-2" style="transition-delay:.24s">
+      <span class="entry-num font-serif text-2xl text-[var(--forest)]/30">04</span>
+      <h3 class="font-serif text-2xl">Money you understand</h3>
+      <p class="text-[var(--forest)]/60 text-sm leading-relaxed max-w-md">Every fee is explained before you pay it, in plain language, or there is no fee. We test our own statements on people who've never opened a bank account.</p>
+      <span class="hidden md:inline font-mono text-[11px] text-[var(--forest)]/35 uppercase tracking-wide justify-self-end">Since day one</span>
+    </div>
+
+    <div class="reveal entry-row group grid md:grid-cols-[80px_1.4fr_2fr_auto] gap-4 md:gap-10 items-center py-8 md:py-10 px-2 -mx-2" style="transition-delay:.32s">
+      <span class="entry-num font-serif text-2xl text-[var(--forest)]/30">05</span>
+      <h3 class="font-serif text-2xl">Held like our own</h3>
+      <p class="text-[var(--forest)]/60 text-sm leading-relaxed max-w-md">An open complaint doesn't wait for morning. Every account, every balance, every flagged charge is handled the way we'd want our own handled.</p>
+      <span class="hidden md:inline font-mono text-[11px] text-[var(--forest)]/35 uppercase tracking-wide justify-self-end">Since day one</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ TIMELINE — same ledger-row device, repurposed as milestones ============ -->
+<section id="timeline" class="section-fade relative max-w-[1400px] mx-auto px-6 md:px-12 py-24 md:py-32">
+  <div class="rule mb-16"></div>
+
+  <div class="reveal grid lg:grid-cols-[0.7fr_1.3fr] gap-10 lg:gap-16 items-start mb-16">
+    <p class="font-mono text-[11px] tracking-[0.22em] uppercase text-[var(--leaf)]">
+      004 — Milestones
+    </p>
+    <h2 class="font-serif font-medium leading-[1.02] text-4xl sm:text-5xl lg:text-[3.2rem] tracking-tight max-w-2xl">
+      Seven years, kept in the <span class="italic-serif" style="color:var(--leaf)">ledger.</span>
+    </h2>
+  </div>
+
+  <div class="border-t border-[var(--line)]">
+
+    <div class="reveal entry-row group grid md:grid-cols-[80px_1.4fr_2fr] gap-4 md:gap-10 items-center py-8 md:py-10 border-b border-[var(--line)] px-2 -mx-2">
+      <span class="entry-num font-mono text-lg text-[var(--forest)]/30">2019</span>
+      <h3 class="font-serif text-2xl">Linden opens, invitation only</h3>
+      <p class="text-[var(--forest)]/60 text-sm leading-relaxed max-w-md">One hundred accounts, mostly friends of friends, all warned it might break. It didn't.</p>
+    </div>
+
+    <div class="reveal entry-row group grid md:grid-cols-[80px_1.4fr_2fr] gap-4 md:gap-10 items-center py-8 md:py-10 border-b border-[var(--line)] px-2 -mx-2" style="transition-delay:.06s">
+      <span class="entry-num font-mono text-lg text-[var(--forest)]/30">2021</span>
+      <h3 class="font-serif text-2xl">Public waitlist opens</h3>
+      <p class="text-[var(--forest)]/60 text-sm leading-relaxed max-w-md">Two years of quiet growth ends; the waitlist crosses 40,000 names in its first month.</p>
+    </div>
+
+    <div class="reveal entry-row group grid md:grid-cols-[80px_1.4fr_2fr] gap-4 md:gap-10 items-center py-8 md:py-10 border-b border-[var(--line)] px-2 -mx-2" style="transition-delay:.12s">
+      <span class="entry-num font-mono text-lg text-[var(--forest)]/30">2022</span>
+      <h3 class="font-serif text-2xl">The Linden Card ships</h3>
+      <p class="text-[var(--forest)]/60 text-sm leading-relaxed max-w-md">No rotating categories, no portal to sign into — reward multipliers that just work in the background.</p>
+    </div>
+
+    <div class="reveal entry-row group grid md:grid-cols-[80px_1.4fr_2fr] gap-4 md:gap-10 items-center py-8 md:py-10 border-b border-[var(--line)] px-2 -mx-2" style="transition-delay:.18s">
+      <span class="entry-num font-mono text-lg text-[var(--forest)]/30">2023</span>
+      <h3 class="font-serif text-2xl">Business accounts launch</h3>
+      <p class="text-[var(--forest)]/60 text-sm leading-relaxed max-w-md">Built for the exact frustration that started it all — treasury, payroll, and invoicing without three separate logins.</p>
+    </div>
+
+    <div class="reveal entry-row group grid md:grid-cols-[80px_1.4fr_2fr] gap-4 md:gap-10 items-center py-8 md:py-10 px-2 -mx-2" style="transition-delay:.24s">
+      <span class="entry-num font-mono text-lg text-[var(--forest)]/30">2026</span>
+      <h3 class="font-serif text-2xl">260,000 members, one balance each</h3>
+      <p class="text-[var(--forest)]/60 text-sm leading-relaxed max-w-md">Still answering the phone ourselves. Still no monthly fee. Still the same five rules from the first notebook.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ LEADERSHIP ============ -->
+<section id="leadership" class="section-fade relative max-w-[1400px] mx-auto px-6 md:px-12 py-24 md:py-32">
+  <div class="rule mb-16"></div>
+
+  <div class="reveal flex flex-col sm:flex-row sm:items-end sm:justify-between gap-8 mb-14 md:mb-16">
+    <div>
+      <p class="font-mono text-[11px] tracking-[0.22em] uppercase text-[var(--leaf)] mb-7">
+        005 — Leadership
+      </p>
+      <h2 class="font-serif font-medium leading-[1.02] text-4xl sm:text-5xl lg:text-[3.2rem] tracking-tight max-w-xl">
+        The people who keep the <span class="italic-serif" style="color:var(--leaf)">ledger</span> honest.
+      </h2>
+    </div>
+    <p class="text-[var(--forest)]/55 text-sm max-w-xs">Four of us signed the founding paperwork. All four still read every complaint personally.</p>
+  </div>
+
+  <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+    <div class="reveal ledger-card p-7 flex flex-col" style="transition-delay:.06s">
+      <div class="w-12 h-12 rounded-full flex items-center justify-center mb-6 font-mono text-sm" style="background:var(--forest); color:var(--paper)">AR</div>
+      <p class="font-serif text-xl mb-1">Alex Rivera</p>
+      <p class="font-mono text-[10.5px] uppercase tracking-[0.1em] text-[var(--leaf)] mb-4">Founder &amp; CEO</p>
+      <p class="text-sm text-[var(--forest)]/60 leading-relaxed">Ran a design studio before this. Still answers escalated complaints personally, most weeks.</p>
+    </div>
+
+    <div class="reveal ledger-card p-7 flex flex-col" style="transition-delay:.12s">
+      <div class="w-12 h-12 rounded-full flex items-center justify-center mb-6 font-mono text-sm" style="background:var(--paper-2); border:1px solid var(--line); color:var(--forest)">NB</div>
+      <p class="font-serif text-xl mb-1">Nadia Boström</p>
+      <p class="font-mono text-[10.5px] uppercase tracking-[0.1em] text-[var(--leaf)] mb-4">Chief Risk Officer</p>
+      <p class="text-sm text-[var(--forest)]/60 leading-relaxed">Fourteen years as a bank examiner before joining. Writes the rules she used to enforce.</p>
+    </div>
+
+    <div class="reveal ledger-card p-7 flex flex-col" style="transition-delay:.18s">
+      <div class="w-12 h-12 rounded-full flex items-center justify-center mb-6 font-mono text-sm" style="background:var(--paper-2); border:1px solid var(--line); color:var(--forest)">TO</div>
+      <p class="font-serif text-xl mb-1">Theo Osei</p>
+      <p class="font-mono text-[10.5px] uppercase tracking-[0.1em] text-[var(--leaf)] mb-4">Head of Product</p>
+      <p class="text-sm text-[var(--forest)]/60 leading-relaxed">Believes every screen should survive being read aloud to a stranger. Usually right.</p>
+    </div>
+
+    <div class="reveal ledger-card p-7 flex flex-col" style="transition-delay:.24s">
+      <div class="w-12 h-12 rounded-full flex items-center justify-center mb-6 font-mono text-sm" style="background:var(--paper-2); border:1px solid var(--line); color:var(--forest)">JM</div>
+      <p class="font-serif text-xl mb-1">Jules Mercer</p>
+      <p class="font-mono text-[10.5px] uppercase tracking-[0.1em] text-[var(--leaf)] mb-4">Head of Support</p>
+      <p class="text-sm text-[var(--forest)]/60 leading-relaxed">Built the "a person, always" promise into the org chart before it was a slogan.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ CTA BANNER ============ -->
+<section class="section-fade relative">
+  <div class="max-w-[1400px] mx-auto px-6 md:px-12 py-20 md:py-24">
+    <div class="reveal flex flex-col lg:flex-row lg:items-center justify-between gap-8 lg:gap-10 px-8 py-12 sm:px-12 sm:py-16" style="background:var(--forest); color:var(--paper)">
+      <div class="max-w-xl">
+        <p class="font-mono text-[11px] uppercase tracking-[0.2em] mb-4" style="color:var(--mint)">006 — Join the ledger</p>
+        <h2 class="font-serif font-medium text-3xl sm:text-4xl leading-tight">
+          Come write the next chapter with <span class="italic-serif" style="color:var(--leaf-bright)">us.</span>
+        </h2>
+        <p class="mt-4 text-[var(--paper)]/65 leading-relaxed">Whether that's opening an account or opening a laptop on our team — we're hiring across risk, product, and support.</p>
+      </div>
+      <div class="flex flex-wrap gap-4 shrink-0">
+        <a href="register.html" class="sweep sweep-dark inline-flex items-center justify-center font-mono text-[11px] uppercase tracking-[0.12em] text-white px-7 py-4 border border-[var(--paper)]/30">
+          Open an account
+        </a>
+        <a href="#" class="inline-flex items-center justify-center font-mono text-[11px] uppercase tracking-[0.12em] px-7 py-4 border border-[var(--paper)]/30 underline-hover" style="color:var(--paper)">
+          See open roles
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="relative border-t border-[var(--line)] mt-8" style="background:var(--forest-2)">
+  <div class="grain" style="opacity:.03; mix-blend-mode:screen;"></div>
+
+  <div class="relative max-w-[1400px] mx-auto px-6 md:px-12 pt-16 sm:pt-20 pb-10">
+
+    <div class="reveal grid gap-10 lg:grid-cols-[1fr_auto] lg:items-end pb-14 sm:pb-16">
+      <div>
+        <p class="font-serif italic-serif text-3xl sm:text-4xl text-[var(--mint)]">Linden</p>
+        <p class="mt-4 text-[var(--paper)] text-sm leading-relaxed max-w-sm">
+          Banking held to a higher standard — one balance, four accounts, and a statement that reads like plain English.
+        </p>
+      </div>
+
+      <form class="w-full lg:w-[22rem]" onsubmit="return false">
+        <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--mint)]/70 mb-3">Notes from the ledger, monthly</p>
+        <div class="flex items-stretch border-b border-[var(--mint)]/30 focus-within:border-[var(--leaf-bright)] transition-colors">
+          <input type="email" required placeholder="you@email.com"
+            class="w-full bg-transparent text-[var(--mint)] placeholder-[var(--mint)]/45 text-sm py-3 focus:outline-none">
+          <button type="submit" aria-label="Subscribe" class="shrink-0 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--leaf-bright)] px-2">
+            Sign up →
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="rule" style="background:rgba(190,240,207,.16)"></div>
+
+    <div class="reveal grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-10 py-14 sm:py-16" style="transition-delay:.06s">
+
+      <div>
+        <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--mint)]/60 mb-5">Personal</p>
+        <ul class="space-y-3 text-sm text-[var(--mint)]">
+          <li><a href="index.html" class="underline-hover">Checking</a></li>
+          <li><a href="index.html" class="underline-hover">Savings</a></li>
+          <li><a href="index.html#card" class="underline-hover">Card</a></li>
+          <li><a href="index.html#insights" class="underline-hover">Insights</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--mint)]/60 mb-5">Business</p>
+        <ul class="space-y-3 text-sm text-[var(--mint)]">
+          <li><a href="index.html" class="underline-hover">Treasury</a></li>
+          <li><a href="index.html" class="underline-hover">Payroll</a></li>
+          <li><a href="index.html" class="underline-hover">Invoicing</a></li>
+          <li><a href="index.html" class="underline-hover">API access</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--mint)]/60 mb-5">Company</p>
+        <ul class="space-y-3 text-sm text-[var(--mint)]">
+          <li><a href="about.html" class="underline-hover">About</a></li>
+          <li><a href="#" class="underline-hover">Careers</a></li>
+          <li><a href="#" class="underline-hover">Press</a></li>
+          <li><a href="index.html#security" class="underline-hover">Security</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--mint)]/60 mb-5">Support</p>
+        <ul class="space-y-3 text-sm text-[var(--mint)]">
+          <li><a href="#" class="underline-hover">Help center</a></li>
+          <li><a href="#" class="underline-hover">Contact us</a></li>
+          <li><a href="#" class="underline-hover">Status</a></li>
+          <li><a href="#" class="underline-hover">Accessibility</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rule" style="background:rgba(190,240,207,.16)"></div>
+
+    <div class="reveal flex flex-col-reverse sm:flex-row items-center sm:items-center justify-between gap-6 pt-8 text-center sm:text-left" style="transition-delay:.12s">
+      <div class="flex flex-col sm:flex-row items-center gap-2 sm:gap-6">
+        <p class="font-mono text-[10px] text-[var(--mint)]/70">© 2026 Linden Financial, Inc.</p>
+        <div class="hidden sm:block w-px h-3 bg-[var(--mint)]/25"></div>
+        <p class="font-mono text-[10px] text-[var(--mint)]/70 max-w-md">Deposits FDIC-insured to $250,000 through our partner bank</p>
+      </div>
+
+      <div class="flex items-center gap-5">
+        <a href="#" aria-label="X / Twitter" class="underline-hover font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--mint)]">X</a>
+        <a href="#" aria-label="Instagram" class="underline-hover font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--mint)]">IG</a>
+        <a href="#" aria-label="LinkedIn" class="underline-hover font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--mint)]">In</a>
+        <a href="#" class="underline-hover font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--mint)]">Privacy</a>
+        <a href="#" class="underline-hover font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--mint)]">Terms</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const preloader = document.getElementById('preloader');
+  const releasePage = () => {
+    document.body.classList.remove('loading');
+    if(preloader){ preloader.classList.add('done'); }
+  };
+  window.addEventListener('load', () => { setTimeout(releasePage, 900); });
+  setTimeout(releasePage, 3200);
+
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.classList.add('in');
+        e.target.querySelectorAll('.countup').forEach(animateCount);
+        if(e.target.classList.contains('countup')) animateCount(e.target);
+        io.unobserve(e.target);
+      }
+    });
+  }, {threshold:.15});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  const sectionIo = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      e.target.classList.toggle('in', e.isIntersecting);
+    });
+  }, {threshold:.2, rootMargin:'-8% 0px -8% 0px'});
+  document.querySelectorAll('.section-fade').forEach(el=>sectionIo.observe(el));
+
+  const burgerBtn = document.getElementById('burgerBtn');
+  const mobilePanel = document.getElementById('mobilePanel');
+  if(burgerBtn){
+    burgerBtn.addEventListener('click', ()=>{
+      const open = mobilePanel.classList.toggle('open');
+      burgerBtn.classList.toggle('open', open);
+      burgerBtn.setAttribute('aria-expanded', open);
+    });
+    mobilePanel.querySelectorAll('a').forEach(a=>{
+      a.addEventListener('click', ()=>{
+        mobilePanel.classList.remove('open');
+        burgerBtn.classList.remove('open');
+        burgerBtn.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+
+  function animateCount(el){
+    if(el.dataset.animated === '1') return;
+    el.dataset.animated = '1';
+    const target = parseFloat(el.dataset.target);
+    const decimals = parseInt(el.dataset.decimals || '0', 10);
+    const commas = el.dataset.commas === '1';
+    if(reduceMotion || isNaN(target)){ el.textContent = target.toFixed(decimals); return; }
+    const duration = 1500;
+    const start = performance.now();
+    function tick(now){
+      const t = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const val = target * eased;
+      el.textContent = commas
+        ? val.toLocaleString('en-US', {minimumFractionDigits:decimals, maximumFractionDigits:decimals})
+        : val.toFixed(decimals);
+      if(t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  window.addEventListener('load', ()=>{
+    setTimeout(()=>{
+      document.querySelectorAll('.countup').forEach(animateCount);
+    }, 550);
+  });
+
+  const ledgerCard = document.getElementById('ledgerCard');
+  if(ledgerCard && window.matchMedia('(pointer: fine)').matches && !reduceMotion){
+    ledgerCard.addEventListener('mousemove', (e)=>{
+      const r = ledgerCard.getBoundingClientRect();
+      const px = (e.clientX - r.left) / r.width - 0.5;
+      const py = (e.clientY - r.top) / r.height - 0.5;
+      ledgerCard.style.transform = `perspective(1000px) rotateX(${(-py*6).toFixed(2)}deg) rotateY(${(px*8).toFixed(2)}deg) translateY(-4px)`;
+    });
+    ledgerCard.addEventListener('mouseleave', ()=>{
+      ledgerCard.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0)';
+    });
+  }
+
+  const watermark = document.getElementById('watermark');
+  if(watermark && !reduceMotion){
+    let ticking = false;
+    window.addEventListener('scroll', ()=>{
+      if(!ticking){
+        requestAnimationFrame(()=>{
+          const y = Math.min(window.scrollY * 0.06, 40);
+          watermark.style.transform = `translate(-50%, ${y}px)`;
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+  }
+</script>
+<!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/6a53d59c5f6a5d1d459156eb/1jtbnkrqr';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
+</body>
+</html>

@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Linden</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,340;0,9..144,440;0,9..144,560;1,9..144,440&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          bg: '#FAF8F3', forest: '#0E2A1F', forestdeep: '#081C13',
+          leaf: '#1E8F52', leafbright: '#2FBE73',
+          gold: '#C98A2C', mint: '#BEF0CF', ink: '#0E2A1F', soft: '#5B6F62',
+        },
+        fontFamily: { display: ['Fraunces', 'serif'] },
+        keyframes: {
+          popIn: { '0%': { transform: 'scale(.6)', opacity: '0' }, '60%': { transform: 'scale(1.05)' }, '100%': { transform: 'scale(1)', opacity: '1' } },
+          spin: { '100%': { transform: 'rotate(360deg)' } },
+        },
+        animation: { popIn: 'popIn .35s cubic-bezier(.19,1,.22,1) forwards', spinslow: 'spin 1s linear infinite' },
+      }
+    }
+  }
+</script>
+<style>
+  :root{
+    --bg:#FAF8F3; --surface:#FBFAF6; --surface-2:#F1F6F1; --text:#0E2A1F; --muted:#5B6F62;
+    --border:rgba(14,42,31,.13); --shadow:0 24px 50px -30px rgba(14,42,31,.35);
+    --leaf:#1E8F52; --leaf-bright:#2FBE73; --forest:#0E2A1F; --gold:#C98A2C; --error:#B3432B; --mint:#BEF0CF;
+    --font-ui:'Inter',sans-serif; --font-display:'Fraunces',serif; --font-mono:'IBM Plex Mono',monospace;
+  }
+  html, body{ background:var(--bg); }
+  body{ color:var(--text); font-family:var(--font-ui); }
+  h1,h2,h3,.font-display{ font-family:var(--font-display); font-optical-sizing:auto; }
+  .font-serif{ font-family:'Fraunces',serif; font-optical-sizing:auto; }
+  .italic-serif{ font-style:italic; font-weight:440; }
+  .surface{ background:var(--surface); border:1px solid var(--border); border-radius:4px; }
+  .surface-2{ background:var(--surface-2); border-radius:4px; }
+  .text-muted2{ color:var(--muted); }
+  .border-soft2{ border-color:var(--border); }
+
+  .input-field{ width:100%; background:var(--surface); border:1px solid var(--border); border-radius:2px; padding:.75rem .95rem; font-size:14px; color:var(--text); transition:border-color .2s ease, box-shadow .2s ease; }
+  .input-field::placeholder{ color:var(--muted); opacity:.65; }
+  .input-field:focus{ outline:none; border-color:var(--leaf); box-shadow:0 0 0 3px rgba(30,143,82,.13); }
+  .label-sm{ font-family:var(--font-mono); font-size:10.5px; font-weight:500; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; display:block; }
+  .help-sm{ font-size:12px; color:var(--muted); margin-top:4px; }
+  .error-sm{ font-size:12.5px; color:var(--error); margin-top:4px; }
+
+  .btn-primary{ position:relative; overflow:hidden; z-index:0; background:var(--forest); color:#fff; border-radius:2px; transition:transform .25s cubic-bezier(.34,1.56,.64,1); }
+  .btn-primary::before{ content:''; position:absolute; inset:0; background:var(--leaf-bright); transform:translateY(101%); transition:transform .4s cubic-bezier(.65,0,.35,1); z-index:-1; }
+  .btn-primary:hover::before{ transform:translateY(0); }
+  .btn-primary:active{ transform:scale(.98); }
+  .btn-primary:disabled{ opacity:.55; cursor:not-allowed; }
+  .btn-ghost{ background:var(--surface-2); color:var(--text); border:1px solid var(--border); border-radius:2px; transition:background-color .2s ease, border-color .2s ease; }
+  .btn-ghost:hover{ background:var(--surface); border-color:var(--leaf); }
+  .btn-mint{ background:var(--leaf); color:#fff; border-radius:2px; transition:background-color .2s ease; }
+  .btn-mint:hover{ background:var(--leaf-bright); }
+  .btn-rose{ background:var(--error); color:#fff; border-radius:2px; transition:opacity .2s ease; }
+  .btn-rose:hover{ opacity:.88; }
+
+  .pill{ font-family:var(--font-mono); font-size:10px; font-weight:500; letter-spacing:.06em; text-transform:uppercase; padding:.25rem .65rem; border-radius:999px; white-space:nowrap; }
+  .pill-pending{ background:rgba(201,138,44,.15); color:var(--gold); }
+  .pill-approved{ background:rgba(30,143,82,.13); color:var(--leaf); }
+  .pill-rejected{ background:rgba(179,67,43,.1); color:var(--error); }
+  .pill-suspended{ background:rgba(179,67,43,.1); color:var(--error); }
+  .pill-active{ background:rgba(30,143,82,.13); color:var(--leaf); }
+
+  .nav-item{ display:flex; align-items:center; gap:.7rem; padding:.65rem .9rem; border-radius:3px; font-size:14px; font-weight:500; color:var(--muted); transition:background-color .15s ease, color .15s ease; cursor:pointer; }
+  .nav-item:hover{ background:var(--surface-2); color:var(--text); }
+  .nav-item.active{ background:var(--leaf); color:#fff; }
+
+  .modal-backdrop{ background:rgba(14,42,31,.55); backdrop-filter:blur(3px); }
+  .modal-card{ border-radius:6px; }
+
+  .stat-card{ background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow); border-radius:6px; padding:1.15rem 1.3rem; }
+
+  table.admin-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  table.admin-table th{ text-align:left; font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); padding:.65rem .85rem; border-bottom:1px solid var(--border); white-space:nowrap; }
+  table.admin-table td{ padding:.75rem .85rem; border-bottom:1px solid var(--border); vertical-align:middle; }
+  table.admin-table tr:last-child td{ border-bottom:none; }
+  .row-hover:hover{ background:var(--surface-2); cursor:pointer; }
+
+  .spinner{ width:14px; height:14px; border-radius:50%; border:2px solid rgba(251,250,246,.35); border-top-color:var(--paper, #FBFAF6); animation:spin .7s linear infinite; display:inline-block; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  ::-webkit-scrollbar{ width:6px; height:6px; }
+  ::-webkit-scrollbar-thumb{ background:var(--border); border-radius:99px; }
+  ::selection{ background:var(--mint); color:var(--forest); }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- ============ Login gate ============ -->
+<div id="loginGate" class="min-h-screen flex items-center justify-center p-5">
+  <div class="surface p-7 sm:p-9 w-full max-w-[400px]" style="box-shadow:var(--shadow)">
+    <div class="flex items-baseline gap-2 mb-1">
+      <span class="font-serif italic-serif text-2xl">Linden</span>
+      <span class="text-muted2 font-mono text-[11px] uppercase tracking-[0.16em]">Admin</span>
+    </div>
+    <p class="text-muted2 text-[13.5px] mb-7">Sign in to manage accounts and transactions.</p>
+    <form id="loginForm" class="space-y-5">
+      <div>
+        <label class="label-sm">Admin email</label>
+        <input required id="loginEmail" type="email" class="input-field" placeholder="admin@gmail.com" />
+      </div>
+      <div>
+        <label class="label-sm">Password</label>
+        <input required id="loginPassword" type="password" class="input-field" placeholder="••••••••" />
+      </div>
+      <p id="loginError" class="hidden error-sm"></p>
+      <button id="loginSubmitBtn" type="submit" class="btn-primary font-medium text-[15px] py-3.5 w-full flex items-center justify-center gap-2 mt-2">
+        <span id="loginSubmitLabel">Sign in</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- ============ App shell ============ -->
+<div id="appShell" class="hidden min-h-screen lg:grid lg:grid-cols-[250px_1fr]">
+  <div id="drawerBackdrop" class="hidden fixed inset-0 bg-black/40 z-30 lg:hidden"></div>
+  <aside id="sidebar" class="fixed lg:sticky top-0 left-0 h-screen w-[250px] -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40 surface lg:border-r border-r flex flex-col p-5">
+    <div class="flex items-center justify-between mb-8">
+      <a href="#" class="flex items-baseline gap-2">
+        <span class="font-serif italic-serif text-xl">Linden</span>
+        <span class="text-muted2 font-mono text-[10px] uppercase tracking-[0.16em]">Admin</span>
+      </a>
+      <button id="closeDrawerBtn" class="lg:hidden text-muted2"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <nav class="flex-1 space-y-1" id="navList">
+      <div class="nav-item active" data-section="overview"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12 12 3l9 9M5 10v10h14V10"/></svg> Overview</div>
+      <div class="nav-item" data-section="users"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5M16.5 8.5A2.8 2.8 0 1 0 16.5 3M21 20c0-2.6-1.8-4.6-4.2-5.3"/></svg> Users</div>
+      <div class="nav-item" data-section="deposits"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21V7m0 14-4.5-4.5M12 21l4.5-4.5M4 4h16"/></svg> Deposits <span id="badgeDeposits" class="ml-auto hidden pill pill-pending"></span></div>
+      <div class="nav-item" data-section="transfers"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h13M7 7l4-4M7 7l4 4M17 17H4M17 17l-4-4M17 17l-4 4"/></svg> Transfers <span id="badgeTransfers" class="ml-auto hidden pill pill-pending"></span></div>
+      <div class="nav-item" data-section="withdrawals"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3"/></svg> Withdrawals <span id="badgeWithdrawals" class="ml-auto hidden pill pill-pending"></span></div>
+      <div class="nav-item" data-section="cards"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="5.5" width="19" height="13" rx="2"/><path d="M2.5 9.5h19"/></svg> Cards <span id="badgeCards" class="ml-auto hidden pill pill-pending"></span></div>
+      <div class="nav-item" data-section="loans"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Loans <span id="badgeLoans" class="ml-auto hidden pill pill-pending"></span></div>
+      <div class="nav-item" data-section="depositsettings"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="5.5" width="19" height="13" rx="2"/><path d="M2.5 9.5h19M7 15h4"/></svg> Deposit Settings</div>
+    </nav>
+    <button id="logoutBtn" class="nav-item mt-2" style="color:var(--error)">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg> Log out
+    </button>
+  </aside>
+
+  <div class="flex flex-col min-h-screen">
+    <header class="lg:hidden sticky top-0 z-20 surface flex items-center justify-between px-4 py-3.5" style="border-radius:0">
+      <button id="openDrawerBtn" class="text-muted2"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+      <p id="mobileTitle" class="font-serif text-[15px]">Overview</p>
+      <div class="w-9 h-9 rounded-full bg-leaf/15 flex items-center justify-center font-serif text-[var(--leaf)] text-[13px]">A</div>
+    </header>
+
+    <main class="flex-1 w-full max-w-6xl mx-auto p-4 sm:p-6 lg:p-10">
+
+      <!-- ===== Overview ===== -->
+      <section id="sec-overview">
+        <p class="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--leaf)] mb-2">Overview</p>
+        <h1 class="font-serif font-medium text-[26px] mb-6">Snapshot of Linden right now.</h1>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div class="stat-card"><p class="help-sm mb-1">Total users</p><p id="statTotalUsers" class="font-serif font-medium text-[24px]">—</p></div>
+          <div class="stat-card"><p class="help-sm mb-1">Suspended users</p><p id="statSuspended" class="font-serif font-medium text-[24px]">—</p></div>
+          <div class="stat-card"><p class="help-sm mb-1">Total balances held</p><p id="statTotalBalance" class="font-serif font-medium text-[24px]">—</p></div>
+          <div class="stat-card"><p class="help-sm mb-1">Pending actions</p><p id="statPending" class="font-serif font-medium text-[24px]" style="color:var(--gold)">—</p></div>
+        </div>
+        <h2 class="font-serif text-[17px] mb-3">Latest pending requests</h2>
+        <div class="surface overflow-x-auto">
+          <table class="admin-table"><thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody id="overviewPendingBody"></tbody></table>
+          <p id="overviewPendingEmpty" class="hidden p-5 text-muted2 text-[13.5px] text-center">Nothing pending right now.</p>
+        </div>
+      </section>
+
+      <!-- ===== Users ===== -->
+      <section id="sec-users" class="hidden">
+        <h1 class="text-[24px] font-serif font-medium mb-1">Users</h1>
+        <p class="text-muted2 text-[14px] mb-4">Search, review, fund, or restrict any account.</p>
+        <input id="userSearch" class="input-field mb-5 max-w-sm" placeholder="Search by name, email, or account number…" />
+        <div class="surface overflow-x-auto">
+          <table class="admin-table"><thead><tr><th>Name</th><th>Email</th><th>Account #</th><th>Type</th><th>Balance</th><th>Status</th><th></th></tr></thead><tbody id="usersTableBody"></tbody></table>
+          <p id="usersEmpty" class="hidden p-5 text-muted2 text-[13.5px] text-center">No users found.</p>
+        </div>
+      </section>
+
+      <!-- ===== Transaction sections ===== -->
+      <section id="sec-deposits" class="hidden">
+        <h1 class="text-[24px] font-serif font-medium mb-1">Deposits</h1>
+        <p class="text-muted2 text-[14px] mb-4">Review and approve incoming deposits.</p>
+        <div class="surface overflow-x-auto">
+          <table class="admin-table"><thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Details</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody id="depositsTableBody"></tbody></table>
+          <p id="depositsEmpty" class="hidden p-5 text-muted2 text-[13.5px] text-center">No deposit requests yet.</p>
+        </div>
+      </section>
+
+      <section id="sec-transfers" class="hidden">
+        <h1 class="text-[24px] font-serif font-medium mb-1">Transfers</h1>
+        <p class="text-muted2 text-[14px] mb-4">Review and approve outgoing transfers.</p>
+        <div class="surface overflow-x-auto">
+          <table class="admin-table"><thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Details</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody id="transfersTableBody"></tbody></table>
+          <p id="transfersEmpty" class="hidden p-5 text-muted2 text-[13.5px] text-center">No transfer requests yet.</p>
+        </div>
+      </section>
+
+      <section id="sec-withdrawals" class="hidden">
+        <h1 class="text-[24px] font-serif font-medium mb-1">Withdrawals</h1>
+        <p class="text-muted2 text-[14px] mb-4">Review and approve withdrawal requests.</p>
+        <div class="surface overflow-x-auto">
+          <table class="admin-table"><thead><tr><th>User</th><th>Method</th><th>Amount</th><th>Details</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody id="withdrawalsTableBody"></tbody></table>
+          <p id="withdrawalsEmpty" class="hidden p-5 text-muted2 text-[13.5px] text-center">No withdrawal requests yet.</p>
+        </div>
+      </section>
+
+      <section id="sec-cards" class="hidden">
+        <h1 class="text-[24px] font-serif font-medium mb-1">Card applications</h1>
+        <p class="text-muted2 text-[14px] mb-4">Review and approve card requests.</p>
+        <div class="surface overflow-x-auto">
+          <table class="admin-table"><thead><tr><th>User</th><th>Card type</th><th>Fee</th><th>Details</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody id="cardsTableBody"></tbody></table>
+          <p id="cardsEmpty" class="hidden p-5 text-muted2 text-[13.5px] text-center">No card applications yet.</p>
+        </div>
+      </section>
+
+      <section id="sec-loans" class="hidden">
+        <h1 class="text-[24px] font-serif font-medium mb-1">Loan applications</h1>
+        <p class="text-muted2 text-[14px] mb-4">Review and approve loan requests.</p>
+        <div class="surface overflow-x-auto">
+          <table class="admin-table"><thead><tr><th>User</th><th>Amount</th><th>Purpose</th><th>Duration</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody id="loansTableBody"></tbody></table>
+          <p id="loansEmpty" class="hidden p-5 text-muted2 text-[13.5px] text-center">No loan applications yet.</p>
+        </div>
+      </section>
+
+      <!-- ===== Deposit Settings ===== -->
+      <section id="sec-depositsettings" class="hidden">
+        <h1 class="text-[24px] font-serif font-medium mb-1">Deposit Settings</h1>
+        <p class="text-muted2 text-[14px] mb-6">Control what every user sees on their Deposit page — this updates live on their dashboard.</p>
+
+        <div class="surface p-5 mb-8">
+          <p class="font-serif text-[16px] mb-1">Bank transfer details</p>
+          <p class="help-sm mb-4">Leave account number, account name, or currency blank to keep showing each user's own — only fill these in if you want every user to see the same shared values instead.</p>
+          <div class="grid sm:grid-cols-2 gap-4 mb-4">
+            <div><label class="label-sm">Bank name</label><input id="dsBankName" class="input-field" placeholder="Linden" /></div>
+            <div><label class="label-sm">Help text shown to users</label><input id="dsBankHelp" class="input-field" placeholder="Send funds to this account, then confirm below." /></div>
+          </div>
+          <div class="grid sm:grid-cols-3 gap-4 mb-5">
+            <div><label class="label-sm">Account number override</label><input id="dsBankAccountNumber" class="input-field" placeholder="Leave blank to use each user's own" /></div>
+            <div><label class="label-sm">Account name override</label><input id="dsBankAccountName" class="input-field" placeholder="Leave blank to use each user's own" /></div>
+            <div><label class="label-sm">Currency override</label><input id="dsBankCurrency" class="input-field" placeholder="e.g. NGN" /></div>
+          </div>
+          <button id="dsBankSaveBtn" class="btn-primary font-medium text-[13.5px] py-2.5 px-5">Save bank settings</button>
+        </div>
+
+        <div class="flex items-center justify-between mb-3">
+          <p class="font-serif text-[16px]">Crypto deposit addresses</p>
+          <button id="dsAddCoinBtn" class="btn-ghost text-[12px] font-mono uppercase tracking-[0.08em] px-4 py-2">+ Add coin</button>
+        </div>
+        <div id="dsCoinList" class="space-y-3 mb-6"></div>
+
+        <div id="dsCoinForm" class="surface p-5 mb-8 hidden">
+          <p id="dsCoinFormTitle" class="font-serif text-[16px] mb-4">Add coin</p>
+          <input type="hidden" id="dsCoinId" />
+          <div class="grid sm:grid-cols-2 gap-4 mb-4">
+            <div><label class="label-sm">Coin name</label><input id="dsCoinName" class="input-field" placeholder="Bitcoin" /></div>
+            <div><label class="label-sm">Ticker</label><input id="dsCoinTicker" class="input-field" placeholder="BTC" /></div>
+          </div>
+          <div class="mb-4"><label class="label-sm">Network label</label><input id="dsCoinNetwork" class="input-field" placeholder="Bitcoin (BTC) network" /></div>
+          <div class="mb-4"><label class="label-sm">Wallet address</label><input id="dsCoinAddress" class="input-field" placeholder="bc1q…" /></div>
+          <div class="mb-4"><label class="label-sm">Warning text shown to users</label><input id="dsCoinWarning" class="input-field" placeholder="Only send BTC to this address on the Bitcoin network." /></div>
+          <label class="flex items-center gap-2 mb-5 text-[13.5px] font-medium cursor-pointer"><input type="checkbox" id="dsCoinEnabled" checked /> Visible to users</label>
+          <div class="flex gap-3">
+            <button type="button" id="dsCoinCancelBtn" class="btn-ghost font-medium text-[13.5px] py-2.5 flex-1">Cancel</button>
+            <button type="button" id="dsCoinSaveBtn" class="btn-primary font-medium text-[13.5px] py-2.5 flex-1">Save coin</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ============ User detail modal ============ -->
+<div id="userModal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 overflow-y-auto">
+  <div class="surface modal-card p-6 w-full max-w-[580px] my-8 animate-popIn max-h-[88vh] overflow-y-auto">
+    <div class="flex items-start justify-between mb-4">
+      <div>
+        <p id="umName" class="font-serif font-medium text-[19px]">—</p>
+        <p id="umEmail" class="text-muted2 text-[13.5px]">—</p>
+      </div>
+      <button id="umCloseBtn" class="text-muted2"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 mb-5">
+      <div class="surface-2 p-3"><p class="help-sm mb-0.5">Account number</p><p id="umAcctNum" class="font-mono text-[13px]">—</p></div>
+      <div class="surface-2 p-3"><p class="help-sm mb-0.5">Account type</p><p id="umAcctType" class="font-medium text-[13.5px] capitalize">—</p></div>
+      <div class="surface-2 p-3"><p class="help-sm mb-0.5">Balance</p><p id="umBalance" class="font-mono text-[13px]">—</p></div>
+      <div class="surface-2 p-3"><p class="help-sm mb-0.5">Phone</p><p id="umPhone" class="font-medium text-[13.5px]">—</p></div>
+      <div class="surface-2 p-3"><p class="help-sm mb-0.5">Country</p><p id="umCountry" class="font-medium text-[13.5px]">—</p></div>
+      <div class="surface-2 p-3"><p class="help-sm mb-0.5">Status</p><p id="umStatus" class="font-medium text-[13.5px]">—</p></div>
+      <div class="surface-2 p-3 col-span-2"><p class="help-sm mb-0.5">Address</p><p id="umAddress" class="font-medium text-[13.5px]">—</p></div>
+    </div>
+
+    <div class="surface-2 p-4 mb-4">
+      <p class="font-serif text-[15px] mb-3">Adjust balance</p>
+      <div class="flex gap-2 mb-3">
+        <input id="umAdjustAmount" type="number" min="0.01" step="0.01" class="input-field" placeholder="0.00" />
+        <select id="umAdjustDirection" class="input-field max-w-[120px]"><option value="credit">Credit</option><option value="debit">Debit</option></select>
+      </div>
+      <input id="umAdjustNote" class="input-field mb-3" placeholder="Note (optional, e.g. bonus, correction)" />
+      <button id="umAdjustBtn" class="btn-primary font-medium text-[13.5px] py-2.5 w-full">Apply adjustment</button>
+    </div>
+
+    <div class="flex gap-3 mb-5">
+      <button id="umSuspendBtn" class="btn-rose font-medium text-[13.5px] py-2.5 flex-1">Suspend account</button>
+      <button id="umUnsuspendBtn" class="btn-mint font-medium text-[13.5px] py-2.5 flex-1 hidden">Unsuspend account</button>
+    </div>
+
+    <p class="font-serif text-[15px] mb-2">Recent transactions</p>
+    <div id="umTxList" class="surface-2 divide-y divide-[var(--border)] max-h-[220px] overflow-y-auto">
+      <p class="p-4 text-muted2 text-[13px] text-center">No transactions yet.</p>
+    </div>
+  </div>
+</div>
+
+<div id="toastWrap" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] flex flex-col gap-2 items-center px-4 w-full sm:w-auto"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getDatabase, ref, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  // Same Firebase project as the Linden registration page / user dashboard.
+  const firebaseConfig = {
+    apiKey: "AIzaSyD_aG3qbkexjie_PN0cE88m9Hz4SRGP9mE",
+    authDomain: "linden-8c04e.firebaseapp.com",
+    projectId: "linden-8c04e",
+    storageBucket: "linden-8c04e.firebasestorage.app",
+    messagingSenderId: "1094527974597",
+    appId: "1:1094527974597:web:8c987c0c393a812d0204ac"
+  };
+
+  const ADMIN_EMAIL = "admin@gmail.com";
+  const ADMIN_PASSWORD = "123456789";
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+  const $ = (id) => document.getElementById(id);
+
+  let allUsers = {};        // uid -> user object
+  let allTx = [];           // flat array of {id, ...tx}
+  let activeUid = null;
+  let depositSettings = {}; // settings/deposit from Firebase (bank + crypto coins)
+
+  /* ---------- helpers ---------- */
+  function showToast(message, tone = "ink") {
+    const wrap = $("toastWrap");
+    const el = document.createElement("div");
+    const tones = { ink: "bg-[var(--forest)] text-white", mint: "bg-[var(--leaf)] text-white", rose: "bg-[var(--error)] text-white" };
+    el.className = `${tones[tone] || tones.ink} font-mono text-[12.5px] tracking-[0.02em] px-5 py-3 rounded-full shadow-lg max-w-[92vw] text-center`;
+    el.textContent = message;
+    wrap.appendChild(el);
+    setTimeout(() => { el.style.transition = "opacity .3s ease, transform .3s ease"; el.style.opacity = "0"; el.style.transform = "translateY(8px)"; setTimeout(() => el.remove(), 300); }, 3200);
+  }
+  const CURRENCY_SYMBOLS = { USD:"$", EUR:"€", GBP:"£", NGN:"₦", GHS:"₵", KES:"KSh", ZAR:"R", EGP:"E£", XOF:"CFA", XAF:"FCFA", UGX:"USh", TZS:"TSh", MAD:"MAD", CAD:"$", AUD:"$", NZD:"$", INR:"₹", PKR:"₨", BDT:"৳", CNY:"¥", JPY:"¥", KRW:"₩", SGD:"$", THB:"฿", IDR:"Rp", PHP:"₱", VND:"₫", AED:"د.إ", SAR:"﷼", ILS:"₪", TRY:"₺", RUB:"₽", CHF:"CHF", SEK:"kr", NOK:"kr", DKK:"kr", PLN:"zł", BRL:"R$", MXN:"$", ARS:"$", COP:"$" };
+  function fmtMoney(amount, code) {
+    const symbol = CURRENCY_SYMBOLS[code] || "";
+    const n = Number(amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return `${symbol}${n}`;
+  }
+  function statusPill(status) {
+    const map = { pending: ["pill-pending", "Pending"], approved: ["pill-approved", "Approved"], rejected: ["pill-rejected", "Rejected"] };
+    const [cls, label] = map[status] || map.pending;
+    return `<span class="pill ${cls}">${label}</span>`;
+  }
+  function txDetailsSummary(tx) {
+    const d = tx.details || {};
+    if (tx.type === "deposit_bank") return d.reference ? `Ref: ${d.reference}` : "—";
+    if (tx.type === "deposit_crypto") return `${d.coin || ""} ${d.txHash ? "· " + d.txHash.slice(0, 14) + "…" : ""}`;
+    if (tx.type === "transfer_local") return `${d.accountName || ""} · ${d.bankName || ""} · ${d.accountNumber || ""}`;
+    if (tx.type === "transfer_international") return `${d.recipientName || ""} · ${d.bankName || ""} (${d.recipientCountry || ""})`;
+    if (tx.type === "withdrawal") return d.method === "paypal" ? `PayPal: ${d.paypalEmail || ""}` : d.method === "cashapp" ? `Cashtag: ${d.cashtag || ""}` : `${d.bankName || ""} · ${d.accountNumber || ""}`;
+    if (tx.type === "card_application") return `${d.cardholderName || ""}`;
+    if (tx.type === "loan_application") return `${d.purpose || ""} · income ${d.monthlyIncome || 0}`;
+    return "—";
+  }
+
+  /* ---------- login ---------- */
+  $("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = $("loginEmail").value.trim();
+    const password = $("loginPassword").value;
+    $("loginError").classList.add("hidden");
+
+    if (email.toLowerCase() !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
+      $("loginError").textContent = "Invalid admin credentials.";
+      $("loginError").classList.remove("hidden");
+      return;
+    }
+    $("loginSubmitBtn").disabled = true;
+    $("loginSubmitLabel").innerHTML = '<span class="spinner"></span>';
+    try {
+      await signInWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASSWORD);
+    } catch (err) {
+      $("loginError").textContent = "Could not sign in — make sure the admin account (admin@gmail.com / 123456789) exists in Firebase Authentication for this project.";
+      $("loginError").classList.remove("hidden");
+      $("loginSubmitBtn").disabled = false;
+      $("loginSubmitLabel").textContent = "Sign in";
+    }
+  });
+
+  $("logoutBtn").addEventListener("click", async () => { await signOut(auth); });
+
+  onAuthStateChanged(auth, (user) => {
+    if (user && user.email && user.email.toLowerCase() === ADMIN_EMAIL) {
+      $("loginGate").classList.add("hidden");
+      $("appShell").classList.remove("hidden");
+      wireDataListeners();
+    } else {
+      $("appShell").classList.add("hidden");
+      $("loginGate").classList.remove("hidden");
+      $("loginSubmitBtn").disabled = false;
+      $("loginSubmitLabel").textContent = "Sign in";
+    }
+  });
+
+  /* ---------- nav ---------- */
+  const sectionIds = ["overview", "users", "deposits", "transfers", "withdrawals", "cards", "loans", "depositsettings"];
+  function goToSection(name) {
+    sectionIds.forEach((s) => $(`sec-${s}`).classList.toggle("hidden", s !== name));
+    document.querySelectorAll(".nav-item[data-section]").forEach((el) => el.classList.toggle("active", el.dataset.section === name));
+    const titles = { overview: "Overview", users: "Users", deposits: "Deposits", transfers: "Transfers", withdrawals: "Withdrawals", cards: "Cards", loans: "Loans", depositsettings: "Deposit Settings" };
+    $("mobileTitle").textContent = titles[name] || "Overview";
+    closeDrawer();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+  document.querySelectorAll(".nav-item[data-section]").forEach((el) => el.addEventListener("click", () => goToSection(el.dataset.section)));
+  function openDrawer() { $("sidebar").classList.remove("-translate-x-full"); $("drawerBackdrop").classList.remove("hidden"); }
+  function closeDrawer() { $("sidebar").classList.add("-translate-x-full"); $("drawerBackdrop").classList.add("hidden"); }
+  $("openDrawerBtn").addEventListener("click", openDrawer);
+  $("closeDrawerBtn").addEventListener("click", closeDrawer);
+  $("drawerBackdrop").addEventListener("click", closeDrawer);
+  function syncSidebarForViewport() { if (window.innerWidth >= 1024) $("sidebar").classList.remove("-translate-x-full"); else $("sidebar").classList.add("-translate-x-full"); }
+  window.addEventListener("resize", syncSidebarForViewport);
+  syncSidebarForViewport();
+
+  /* ---------- data listeners ---------- */
+  function wireDataListeners() {
+    onValue(ref(db, "users"), (snap) => { allUsers = snap.val() || {}; renderUsers(); renderOverview(); renderAllTxTables(); });
+    onValue(ref(db, "transactions"), (snap) => {
+      const val = snap.val() || {};
+      allTx = Object.entries(val).map(([id, tx]) => ({ id, ...tx })).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      renderOverview(); renderAllTxTables();
+      if (activeUid) renderUserTx(activeUid);
+    });
+    onValue(ref(db, "settings/deposit"), (snap) => {
+      depositSettings = snap.val() || {};
+      renderDepositSettingsUI();
+    });
+  }
+
+  function userLabel(uid) {
+    const u = allUsers[uid];
+    if (!u) return { name: "Unknown user", email: "" };
+    const name = u.fullName || [u.firstName, u.lastName].filter(Boolean).join(" ") || "Unnamed";
+    return { name, email: u.email || "" };
+  }
+
+  /* ---------- overview ---------- */
+  function renderOverview() {
+    const users = Object.values(allUsers);
+    $("statTotalUsers").textContent = users.length;
+    $("statSuspended").textContent = users.filter((u) => u.suspended).length;
+    const totalBalance = users.reduce((sum, u) => sum + Number(u.balance || 0), 0);
+    $("statTotalBalance").textContent = totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const pending = allTx.filter((t) => t.status === "pending");
+    $("statPending").textContent = pending.length;
+
+    const byType = (prefix) => pending.filter((t) => t.type && t.type.startsWith(prefix)).length;
+    setBadge("badgeDeposits", byType("deposit"));
+    setBadge("badgeTransfers", byType("transfer"));
+    setBadge("badgeWithdrawals", pending.filter((t) => t.type === "withdrawal").length);
+    setBadge("badgeCards", pending.filter((t) => t.type === "card_application").length);
+    setBadge("badgeLoans", pending.filter((t) => t.type === "loan_application").length);
+
+    const recentPending = pending.slice(0, 8);
+    $("overviewPendingEmpty").classList.toggle("hidden", recentPending.length > 0);
+    $("overviewPendingBody").innerHTML = recentPending.map((tx) => {
+      const u = userLabel(tx.uid);
+      return `<tr class="row-hover">
+        <td><p class="font-medium">${u.name}</p><p class="help-sm">${u.email}</p></td>
+        <td>${prettyType(tx.type)}</td>
+        <td>${tx.amount != null ? fmtMoney(tx.amount, tx.currency) : "—"}</td>
+        <td>${new Date(tx.createdAt).toLocaleDateString()}</td>
+        <td>${statusPill(tx.status)}</td>
+        <td>${actionButtons(tx.id)}</td>
+      </tr>`;
+    }).join("");
+    wireActionButtons();
+  }
+  function setBadge(id, count) {
+    const el = $(id);
+    if (count > 0) { el.textContent = count; el.classList.remove("hidden"); } else { el.classList.add("hidden"); }
+  }
+  function prettyType(type) {
+    const map = { deposit_bank: "Bank deposit", deposit_crypto: "Crypto deposit", transfer_local: "Local transfer", transfer_international: "Int'l transfer", withdrawal: "Withdrawal", card_application: "Card application", loan_application: "Loan application", admin_adjustment: "Admin adjustment" };
+    return map[type] || type;
+  }
+
+  /* ---------- users table ---------- */
+  function renderUsers() {
+    const term = ($("userSearch").value || "").toLowerCase().trim();
+    const entries = Object.entries(allUsers).filter(([uid, u]) => {
+      if (!term) return true;
+      const name = u.fullName || [u.firstName, u.lastName].filter(Boolean).join(" ");
+      return [name, u.email, u.accountNumber].filter(Boolean).some((v) => String(v).toLowerCase().includes(term));
+    });
+    $("usersEmpty").classList.toggle("hidden", entries.length > 0);
+    $("usersTableBody").innerHTML = entries.map(([uid, u]) => {
+      const name = u.fullName || [u.firstName, u.lastName].filter(Boolean).join(" ") || "—";
+      return `<tr class="row-hover" data-open-user="${uid}">
+        <td class="font-medium">${name}</td>
+        <td>${u.email || "—"}</td>
+        <td class="font-mono">${u.accountNumber || "—"}</td>
+        <td class="capitalize">${u.accountType || "—"}</td>
+        <td class="font-mono">${fmtMoney(u.balance || 0, u.currency)}</td>
+        <td>${u.suspended ? `<span class="pill pill-suspended">Suspended</span>` : `<span class="pill pill-active">Active</span>`}</td>
+        <td><button class="btn-ghost text-[12px] font-mono uppercase tracking-[0.06em] px-3 py-1.5" data-open-user="${uid}">View</button></td>
+      </tr>`;
+    }).join("");
+    document.querySelectorAll("[data-open-user]").forEach((el) => el.addEventListener("click", () => openUserModal(el.dataset.openUser)));
+  }
+  $("userSearch").addEventListener("input", renderUsers);
+
+  /* ---------- per-category transaction tables ---------- */
+  function actionButtons(txId) {
+    return `<div class="flex gap-2 justify-end">
+      <button class="btn-mint text-[12px] font-mono uppercase tracking-[0.04em] px-3 py-1.5 tx-approve" data-tx="${txId}">Approve</button>
+      <button class="btn-rose text-[12px] font-mono uppercase tracking-[0.04em] px-3 py-1.5 tx-reject" data-tx="${txId}">Reject</button>
+    </div>`;
+  }
+  function actionOrStatus(tx) {
+    if (tx.status === "pending") return actionButtons(tx.id);
+    return `<span class="help-sm">Reviewed</span>`;
+  }
+  function wireActionButtons() {
+    document.querySelectorAll(".tx-approve").forEach((btn) => btn.addEventListener("click", () => reviewTransaction(btn.dataset.tx, "approved")));
+    document.querySelectorAll(".tx-reject").forEach((btn) => btn.addEventListener("click", () => reviewTransaction(btn.dataset.tx, "rejected")));
+  }
+
+  function renderAllTxTables() {
+    const deposits = allTx.filter((t) => t.type && t.type.startsWith("deposit"));
+    const transfers = allTx.filter((t) => t.type && t.type.startsWith("transfer"));
+    const withdrawals = allTx.filter((t) => t.type === "withdrawal");
+    const cards = allTx.filter((t) => t.type === "card_application");
+    const loans = allTx.filter((t) => t.type === "loan_application");
+
+    $("depositsEmpty").classList.toggle("hidden", deposits.length > 0);
+    $("depositsTableBody").innerHTML = deposits.map((tx) => {
+      const u = userLabel(tx.uid);
+      return `<tr><td><p class="font-medium">${u.name}</p><p class="help-sm">${u.email}</p></td><td>${prettyType(tx.type)}</td><td class="font-mono">${fmtMoney(tx.amount, tx.currency)}</td><td>${txDetailsSummary(tx)}</td><td>${new Date(tx.createdAt).toLocaleDateString()}</td><td>${statusPill(tx.status)}</td><td>${actionOrStatus(tx)}</td></tr>`;
+    }).join("");
+
+    $("transfersEmpty").classList.toggle("hidden", transfers.length > 0);
+    $("transfersTableBody").innerHTML = transfers.map((tx) => {
+      const u = userLabel(tx.uid);
+      return `<tr><td><p class="font-medium">${u.name}</p><p class="help-sm">${u.email}</p></td><td>${prettyType(tx.type)}</td><td class="font-mono">${fmtMoney(tx.amount, tx.currency)}</td><td>${txDetailsSummary(tx)}</td><td>${new Date(tx.createdAt).toLocaleDateString()}</td><td>${statusPill(tx.status)}</td><td>${actionOrStatus(tx)}</td></tr>`;
+    }).join("");
+
+    $("withdrawalsEmpty").classList.toggle("hidden", withdrawals.length > 0);
+    $("withdrawalsTableBody").innerHTML = withdrawals.map((tx) => {
+      const u = userLabel(tx.uid);
+      return `<tr><td><p class="font-medium">${u.name}</p><p class="help-sm">${u.email}</p></td><td>${(tx.details && tx.details.method) || "—"}</td><td class="font-mono">${fmtMoney(tx.amount, tx.currency)}</td><td>${txDetailsSummary(tx)}</td><td>${new Date(tx.createdAt).toLocaleDateString()}</td><td>${statusPill(tx.status)}</td><td>${actionOrStatus(tx)}</td></tr>`;
+    }).join("");
+
+    $("cardsEmpty").classList.toggle("hidden", cards.length > 0);
+    $("cardsTableBody").innerHTML = cards.map((tx) => {
+      const u = userLabel(tx.uid);
+      return `<tr><td><p class="font-medium">${u.name}</p><p class="help-sm">${u.email}</p></td><td>${(tx.details && tx.details.cardTypeName) || "—"}</td><td class="font-mono">${fmtMoney(tx.amount, tx.currency)}</td><td>${txDetailsSummary(tx)}</td><td>${new Date(tx.createdAt).toLocaleDateString()}</td><td>${statusPill(tx.status)}</td><td>${actionOrStatus(tx)}</td></tr>`;
+    }).join("");
+
+    $("loansEmpty").classList.toggle("hidden", loans.length > 0);
+    $("loansTableBody").innerHTML = loans.map((tx) => {
+      const u = userLabel(tx.uid);
+      const d = tx.details || {};
+      return `<tr><td><p class="font-medium">${u.name}</p><p class="help-sm">${u.email}</p></td><td class="font-mono">${fmtMoney(tx.amount, tx.currency)}</td><td>${d.purpose || "—"}</td><td>${d.durationMonths || "—"} mo</td><td>${new Date(tx.createdAt).toLocaleDateString()}</td><td>${statusPill(tx.status)}</td><td>${actionOrStatus(tx)}</td></tr>`;
+    }).join("");
+
+    wireActionButtons();
+  }
+
+  /* ---------- approve / reject logic ---------- */
+  async function reviewTransaction(txId, decision) {
+    const tx = allTx.find((t) => t.id === txId);
+    if (!tx) return;
+    const uid = tx.uid;
+    const user = allUsers[uid];
+    if (!user) { showToast("User not found for this transaction.", "rose"); return; }
+
+    const updates = {};
+    updates[`transactions/${txId}/status`] = decision;
+    updates[`transactions/${txId}/reviewedAt`] = new Date().toISOString();
+
+    if (decision === "approved") {
+      let newBalance = Number(user.balance || 0);
+      if (tx.direction === "credit") newBalance += Number(tx.amount || 0);
+      else if (tx.direction === "debit") newBalance -= Number(tx.amount || 0);
+      updates[`users/${uid}/balance`] = newBalance;
+
+      if (tx.type === "card_application") {
+        const last4 = String(Math.floor(1000 + Math.random() * 9000));
+        const cardId = "card_" + Date.now();
+        updates[`users/${uid}/cards/${cardId}`] = {
+          typeId: tx.details?.cardTypeId || "virtual",
+          typeName: tx.details?.cardTypeName || "Card",
+          last4,
+          issuedAt: new Date().toISOString(),
+        };
+      }
+    }
+
+    try {
+      await update(ref(db), updates);
+      showToast(decision === "approved" ? "Transaction approved" : "Transaction rejected", decision === "approved" ? "mint" : "rose");
+    } catch (err) {
+      showToast("Something went wrong — try again.", "rose");
+    }
+  }
+
+  /* ---------- user modal ---------- */
+  function openUserModal(uid) {
+    activeUid = uid;
+    const u = allUsers[uid] || {};
+    const name = u.fullName || [u.firstName, u.lastName].filter(Boolean).join(" ") || "Unnamed user";
+    const address = [u.address, u.city, u.state, u.postalCode, u.country].filter(Boolean).join(", ");
+    $("umName").textContent = name;
+    $("umEmail").textContent = u.email || "—";
+    $("umAcctNum").textContent = u.accountNumber || "—";
+    $("umAcctType").textContent = u.accountType || "—";
+    $("umBalance").textContent = fmtMoney(u.balance || 0, u.currency);
+    $("umPhone").textContent = u.phone || "—";
+    $("umCountry").textContent = u.country || u.countryResidence || "—";
+    $("umAddress").textContent = address || "—";
+    $("umStatus").textContent = u.suspended ? "Suspended" : "Active";
+    $("umSuspendBtn").classList.toggle("hidden", !!u.suspended);
+    $("umUnsuspendBtn").classList.toggle("hidden", !u.suspended);
+    $("umAdjustAmount").value = "";
+    $("umAdjustNote").value = "";
+    renderUserTx(uid);
+    $("userModal").classList.remove("hidden");
+  }
+  $("umCloseBtn").addEventListener("click", () => { $("userModal").classList.add("hidden"); activeUid = null; });
+
+  function displayDescription(tx) {
+    if (tx.type === "admin_adjustment") return tx.direction === "credit" ? "Account credited" : "Account debited";
+    return tx.description || prettyType(tx.type);
+  }
+
+  function renderUserTx(uid) {
+    const list = allTx.filter((t) => t.uid === uid).slice(0, 15);
+    if (!list.length) { $("umTxList").innerHTML = `<p class="p-4 text-muted2 text-[13px] text-center">No transactions yet.</p>`; return; }
+    $("umTxList").innerHTML = list.map((tx) => `
+      <div class="p-3.5 flex items-center justify-between gap-3">
+        <div class="min-w-0"><p class="font-medium text-[13px] truncate">${displayDescription(tx)}</p><p class="help-sm">${new Date(tx.createdAt).toLocaleString()}</p></div>
+        <div class="text-right flex-shrink-0">
+          <p class="font-mono text-[13px] mb-1">${tx.amount != null ? (tx.direction === "credit" ? "+" : "−") + fmtMoney(tx.amount, tx.currency) : ""}</p>
+          ${statusPill(tx.status)}
+        </div>
+      </div>
+    `).join("");
+  }
+
+  $("umSuspendBtn").addEventListener("click", async () => {
+    if (!activeUid) return;
+    await update(ref(db, `users/${activeUid}`), { suspended: true });
+    showToast("Account suspended", "rose");
+    openUserModal(activeUid);
+  });
+  $("umUnsuspendBtn").addEventListener("click", async () => {
+    if (!activeUid) return;
+    await update(ref(db, `users/${activeUid}`), { suspended: false });
+    showToast("Account unsuspended", "mint");
+    openUserModal(activeUid);
+  });
+
+  $("umAdjustBtn").addEventListener("click", async () => {
+    if (!activeUid) return;
+    const amount = Number($("umAdjustAmount").value);
+    const direction = $("umAdjustDirection").value;
+    if (!amount || amount <= 0) { showToast("Enter a valid amount.", "rose"); return; }
+    const user = allUsers[activeUid];
+    const currentBalance = Number(user.balance || 0);
+    const newBalance = direction === "credit" ? currentBalance + amount : currentBalance - amount;
+
+    const updates = {};
+    updates[`users/${activeUid}/balance`] = newBalance;
+    updates[`transactions/admin_${Date.now()}`] = {
+      uid: activeUid, type: "admin_adjustment", direction, amount, currency: user.currency,
+      description: $("umAdjustNote").value.trim() || (direction === "credit" ? "Admin credit" : "Admin debit"),
+      status: "approved", createdAt: new Date().toISOString(), reviewedAt: new Date().toISOString(),
+    };
+    try {
+      await update(ref(db), updates);
+      showToast("Balance updated", "mint");
+      $("umAdjustAmount").value = "";
+      $("umAdjustNote").value = "";
+    } catch (err) {
+      showToast("Something went wrong — try again.", "rose");
+    }
+  });
+
+  /* ---------- Deposit Settings (bank details + crypto coins) ---------- */
+  function renderDepositSettingsUI() {
+    const bank = (depositSettings && depositSettings.bank) || {};
+    $("dsBankName").value = bank.bankName || "";
+    $("dsBankHelp").value = bank.helpText || "";
+    $("dsBankAccountNumber").value = bank.accountNumber || "";
+    $("dsBankAccountName").value = bank.accountName || "";
+    $("dsBankCurrency").value = bank.currency || "";
+
+    const coins = (depositSettings && depositSettings.crypto && depositSettings.crypto.coins) || {};
+    const entries = Object.entries(coins);
+    $("dsCoinList").innerHTML = entries.length ? entries.map(([id, c]) => `
+      <div class="surface p-4 flex items-center justify-between gap-3 flex-wrap">
+        <div class="min-w-0">
+          <p class="font-medium text-[14.5px] truncate">${c.name || id} <span class="text-muted2 font-normal">(${c.ticker || ""})</span> ${c.enabled === false ? '<span class="pill pill-suspended ml-1">Hidden</span>' : '<span class="pill pill-active ml-1">Visible</span>'}</p>
+          <p class="help-sm font-mono truncate max-w-[420px]">${c.address || "No address set yet"}</p>
+        </div>
+        <div class="flex gap-2 flex-shrink-0">
+          <button class="btn-ghost text-[12px] font-mono uppercase tracking-[0.04em] px-3 py-1.5 ds-coin-toggle" data-coin="${id}" data-enabled="${c.enabled === false ? "false" : "true"}">${c.enabled === false ? "Enable" : "Disable"}</button>
+          <button class="btn-ghost text-[12px] font-mono uppercase tracking-[0.04em] px-3 py-1.5 ds-coin-edit" data-coin="${id}">Edit</button>
+          <button class="btn-rose text-[12px] font-mono uppercase tracking-[0.04em] px-3 py-1.5 ds-coin-delete" data-coin="${id}">Delete</button>
+        </div>
+      </div>
+    `).join("") : `<p class="surface p-5 text-muted2 text-[13.5px] text-center">No coins configured yet — add one below and it'll appear on every user's Deposit page.</p>`;
+
+    document.querySelectorAll(".ds-coin-toggle").forEach((btn) => btn.addEventListener("click", () => {
+      const id = btn.dataset.coin;
+      const currentlyEnabled = btn.dataset.enabled === "true";
+      update(ref(db, `settings/deposit/crypto/coins/${id}`), { enabled: !currentlyEnabled })
+        .then(() => showToast(currentlyEnabled ? "Coin hidden from users" : "Coin now visible to users", "mint"))
+        .catch(() => showToast("Something went wrong — try again.", "rose"));
+    }));
+    document.querySelectorAll(".ds-coin-edit").forEach((btn) => btn.addEventListener("click", () => openCoinForm(btn.dataset.coin)));
+    document.querySelectorAll(".ds-coin-delete").forEach((btn) => btn.addEventListener("click", async () => {
+      if (!confirm("Delete this coin? Users will no longer see it as a deposit option.")) return;
+      try {
+        await remove(ref(db, `settings/deposit/crypto/coins/${btn.dataset.coin}`));
+        showToast("Coin removed", "mint");
+      } catch (err) {
+        showToast("Something went wrong — try again.", "rose");
+      }
+    }));
+  }
+
+  $("dsBankSaveBtn").addEventListener("click", async () => {
+    const payload = {
+      bankName: $("dsBankName").value.trim(),
+      helpText: $("dsBankHelp").value.trim(),
+      accountNumber: $("dsBankAccountNumber").value.trim(),
+      accountName: $("dsBankAccountName").value.trim(),
+      currency: $("dsBankCurrency").value.trim().toUpperCase(),
+    };
+    try {
+      await update(ref(db, "settings/deposit/bank"), payload);
+      showToast("Bank settings saved", "mint");
+    } catch (err) {
+      showToast("Something went wrong — try again.", "rose");
+    }
+  });
+
+  function slugifyCoinId(ticker) {
+    const base = (ticker || "coin").toLowerCase().replace(/[^a-z0-9]/g, "") || "coin";
+    const coins = (depositSettings.crypto && depositSettings.crypto.coins) || {};
+    return coins[base] ? `${base}_${Date.now()}` : base;
+  }
+
+  function openCoinForm(id) {
+    const coins = (depositSettings.crypto && depositSettings.crypto.coins) || {};
+    const c = id ? coins[id] : null;
+    $("dsCoinId").value = id || "";
+    $("dsCoinFormTitle").textContent = id ? "Edit coin" : "Add coin";
+    $("dsCoinName").value = c ? (c.name || "") : "";
+    $("dsCoinTicker").value = c ? (c.ticker || "") : "";
+    $("dsCoinNetwork").value = c ? (c.network || "") : "";
+    $("dsCoinAddress").value = c ? (c.address || "") : "";
+    $("dsCoinWarning").value = c ? (c.warning || "") : "";
+    $("dsCoinEnabled").checked = c ? c.enabled !== false : true;
+    $("dsCoinForm").classList.remove("hidden");
+    $("dsCoinForm").scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  $("dsAddCoinBtn").addEventListener("click", () => openCoinForm(null));
+  $("dsCoinCancelBtn").addEventListener("click", () => $("dsCoinForm").classList.add("hidden"));
+  $("dsCoinSaveBtn").addEventListener("click", async () => {
+    const name = $("dsCoinName").value.trim();
+    const ticker = $("dsCoinTicker").value.trim().toUpperCase();
+    const address = $("dsCoinAddress").value.trim();
+    if (!name || !ticker || !address) { showToast("Coin name, ticker, and address are required.", "rose"); return; }
+
+    let id = $("dsCoinId").value;
+    if (!id) id = slugifyCoinId(ticker);
+    const payload = {
+      name, ticker, network: $("dsCoinNetwork").value.trim(), address,
+      warning: $("dsCoinWarning").value.trim(), enabled: $("dsCoinEnabled").checked,
+    };
+    try {
+      await update(ref(db, `settings/deposit/crypto/coins/${id}`), payload);
+      showToast("Coin saved — it'll now show on users' Deposit page", "mint");
+      $("dsCoinForm").classList.add("hidden");
+    } catch (err) {
+      showToast("Something went wrong — try again.", "rose");
+    }
+  });
+</script>
+
+</body>
+</html>
