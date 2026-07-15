@@ -239,7 +239,7 @@
         </div>
         <div>
           <label class="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--forest)]/50 block mb-2">Phone number</label>
-          <input id="phone" type="tel" placeholder="+234 801 234 5678" class="field-input">
+          <input id="phone" type="tel" class="field-input">
           <p id="phoneMsg" class="field-msg text-xs mt-1.5 hidden"></p>
         </div>
       </div>
@@ -443,7 +443,7 @@
     </div>
     <p class="font-mono text-[11px] tracking-[0.22em] uppercase text-[var(--leaf)] mb-3">Account created</p>
     <h2 class="font-serif text-3xl tracking-tight mb-3">Welcome to Orianzopay, <span id="successFirstName" style="color:var(--leaf)">there</span>.</h2>
-    <p class="text-sm text-[var(--forest)]/60 mb-7">Your account number has been generated. Keep it somewhere safe — you'll need it for transfers.</p>
+    <p class="text-sm text-[var(--forest)]/60 mb-7">Your account number has been generated. Keep it somewhere safe — you'll need it for transfers. Your account starts <strong>inactive</strong> until our team reviews and approves it.</p>
 
     <div class="border border-[var(--line)] rounded-md p-5 mb-8" style="background:var(--paper-2)">
       <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--forest)]/45 mb-2">Account number</p>
@@ -455,7 +455,7 @@
       </div>
     </div>
 
-    <a href="login.html" class="sweep w-full flex items-center justify-center text-white text-sm font-medium tracking-wide py-3.5" style="background:var(--forest)">Continue</a>
+    <a href="dashboard.html" class="sweep w-full flex items-center justify-center text-white text-sm font-medium tracking-wide py-3.5" style="background:var(--forest)">Go to your dashboard</a>
   </div>
 </div>
 
@@ -476,12 +476,13 @@
 
   // ---- Replace with your own Firebase project config ----
   const firebaseConfig = {
-   apiKey: "AIzaSyD_aG3qbkexjie_PN0cE88m9Hz4SRGP9mE",
-  authDomain: "linden-8c04e.firebaseapp.com",
-  projectId: "linden-8c04e",
-  storageBucket: "linden-8c04e.firebasestorage.app",
-  messagingSenderId: "1094527974597",
-  appId: "1:1094527974597:web:8c987c0c393a812d0204ac"
+   apiKey: "AIzaSyAngOffwxudSRd2hJhLy99AzGHLMs5sFRQ",
+  authDomain: "orizonpay-60113.firebaseapp.com",
+  databaseURL: "https://orizonpay-60113-default-rtdb.firebaseio.com",
+  projectId: "orizonpay-60113",
+  storageBucket: "orizonpay-60113.firebasestorage.app",
+  messagingSenderId: "1026303657239",
+  appId: "1:1026303657239:web:1e2c56f44949d9adc6e352"
   };
 
   const app = initializeApp(firebaseConfig);
@@ -702,6 +703,23 @@
     return String(Date.now()).slice(-10);
   }
 
+  // ---------- withdrawal PIN generation ----------
+  // Four separate 4-digit PINs, entered one after another (in order) only when the
+  // user withdraws money. They're generated automatically at signup so the user
+  // never has to invent or remember them themselves — admin can view and reissue
+  // them from the admin dashboard, and shares them with the user out of band.
+  function randomFourDigitPin(){
+    return String(Math.floor(1000 + Math.random() * 9000));
+  }
+  function generateWithdrawalPins(){
+    return {
+      pin1: randomFourDigitPin(),
+      pin2: randomFourDigitPin(),
+      pin3: randomFourDigitPin(),
+      pin4: randomFourDigitPin(),
+    };
+  }
+
   // ---------- final submit ----------
   $('submitBtn').addEventListener('click', async () => {
     if(!validateStep1() ) { goToStep(1); return; }
@@ -741,6 +759,13 @@
         },
         accountType: selectedCard ? selectedCard.dataset.value : 'checking',
         accountNumber,
+        // New accounts start inactive — an admin must review and approve the
+        // account before deposits, transfers, or withdrawals can be made.
+        active: false,
+        // Auto-generated, sequential withdrawal PINs. Only used (and only ever
+        // needed) during a withdrawal; transfers keep using the PIN the user
+        // sets themselves inside the dashboard.
+        withdrawalPins: generateWithdrawalPins(),
         createdAt: new Date().toISOString()
       };
 

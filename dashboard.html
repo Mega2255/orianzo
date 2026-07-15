@@ -79,7 +79,7 @@
   .tab-btn{ font-family:var(--font-mono); font-size:11.5px; font-weight:500; letter-spacing:.08em; text-transform:uppercase; padding:.55rem 1rem; border-radius:999px; color:var(--muted); background:var(--surface-2); transition:background-color .2s ease, color .2s ease; }
   .tab-btn.active{ background:var(--leaf); color:#fff; }
 
-  .quick-action{ transition:transform .2s ease, border-color .2s ease; cursor:pointer; }
+  .quick-action{ transition:transform .2s ease, border-color .2s ease; cursor:pointer; position:relative; }
   .quick-action:hover{ transform:translateY(-2px); border-color:var(--leaf); }
 
   .modal-backdrop{ background:rgba(14,42,31,.55); backdrop-filter:blur(3px); }
@@ -99,6 +99,8 @@
   .hero-card::before{ content:''; position:absolute; right:20px; bottom:-90px; width:180px; height:180px; border-radius:50%; border:1px solid rgba(190,240,207,.1); pointer-events:none; }
 
   .modal-card{ border-radius:6px; }
+
+  .status-pill{ display:inline-flex; align-items:center; gap:.4rem; border-radius:999px; padding:.3rem .75rem .3rem .55rem; }
 
   @media (prefers-reduced-motion: reduce){ .animate-popIn, .animate-shake, .animate-spinslow{ animation:none; } }
 </style>
@@ -174,7 +176,21 @@
         <p class="hidden lg:block font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--leaf)] mb-2" data-i18n="overview.title">Overview</p>
         <h1 class="hidden lg:block font-serif font-medium text-[28px] mb-6" id="greetingText">Welcome back.</h1>
 
+        <div id="pendingApprovalBanner" class="hidden surface p-4 mb-6 flex items-start gap-3" style="border-left:3px solid var(--gold)">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background:rgba(201,138,44,.15)">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v6l4 2"/></svg>
+          </div>
+          <div>
+            <p class="font-serif text-[15px] mb-0.5">Your account is pending approval</p>
+            <p class="help-sm">Deposits, transfers, and withdrawals are locked until our team activates your account. Everything else here works as usual — this typically doesn't take long.</p>
+          </div>
+        </div>
+
         <div class="hero-card p-6 sm:p-8 mb-6">
+          <div id="acctStatusPill" class="status-pill relative z-10 mb-4" style="background:rgba(255,255,255,.14)">
+            <span id="acctStatusDot" class="w-1.5 h-1.5 rounded-full" style="background:#2FBE73"></span>
+            <span id="acctStatusText" class="text-[10.5px] font-mono uppercase tracking-[0.1em] text-white">Active</span>
+          </div>
           <p class="relative z-10 text-white/70 text-[11px] font-mono uppercase tracking-[0.18em] mb-2" data-i18n="overview.balance">Available balance</p>
           <p id="balanceDisplay" class="relative z-10 font-serif font-medium text-[32px] sm:text-[38px] mb-5">—</p>
           <div class="relative z-10 flex items-center justify-between flex-wrap gap-2">
@@ -188,14 +204,23 @@
 
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
           <button class="quick-action surface p-4 flex flex-col items-center gap-2 text-center" data-goto="deposit">
+            <span id="qaDepositLock" class="hidden absolute top-2 right-2 w-5 h-5 rounded-full items-center justify-center" style="background:rgba(201,138,44,.15)">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+            </span>
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#1E8F52" stroke-width="2"><path d="M12 21V7m0 14-4.5-4.5M12 21l4.5-4.5M4 4h16"/></svg>
             <span class="text-[12.5px] font-medium" data-i18n="nav.deposit">Deposit</span>
           </button>
           <button class="quick-action surface p-4 flex flex-col items-center gap-2 text-center" data-goto="transfer">
+            <span id="qaTransferLock" class="hidden absolute top-2 right-2 w-5 h-5 rounded-full items-center justify-center" style="background:rgba(201,138,44,.15)">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+            </span>
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#1E8F52" stroke-width="2"><path d="M7 7h13M7 7l4-4M7 7l4 4M17 17H4M17 17l-4-4M17 17l-4 4"/></svg>
             <span class="text-[12.5px] font-medium" data-i18n="nav.transfer">Transfer</span>
           </button>
           <button class="quick-action surface p-4 flex flex-col items-center gap-2 text-center" data-goto="withdraw">
+            <span id="qaWithdrawLock" class="hidden absolute top-2 right-2 w-5 h-5 rounded-full items-center justify-center" style="background:rgba(201,138,44,.15)">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+            </span>
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#1E8F52" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3"/></svg>
             <span class="text-[12.5px] font-medium" data-i18n="nav.withdraw">Withdraw</span>
           </button>
@@ -223,6 +248,15 @@
         <h1 class="text-[24px] font-serif font-medium mb-1" data-i18n="deposit.title">Deposit</h1>
         <p class="text-muted2 text-[14px] mb-5" data-i18n="deposit.sub">Fund your account via bank transfer or crypto.</p>
 
+        <div id="depositLockedNotice" class="hidden surface p-6 mb-8 text-center">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style="background:rgba(201,138,44,.15)">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          </div>
+          <p class="font-serif text-[16px] mb-1">Deposits are locked for now</p>
+          <p class="help-sm max-w-sm mx-auto">Your account is pending approval. Once our team activates it, you'll be able to deposit funds here.</p>
+        </div>
+
+        <div id="depositActionArea">
         <div class="flex gap-2 mb-6 flex-wrap">
           <button class="tab-btn active" data-deposit-tab="bank" data-i18n="deposit.bankTab">Bank transfer</button>
           <button class="tab-btn" data-deposit-tab="crypto" data-i18n="deposit.cryptoTab">Crypto</button>
@@ -287,6 +321,7 @@
             <button type="submit" class="btn-primary font-medium text-[15px] py-3.5 w-full" data-i18n="deposit.done">I've made this deposit</button>
           </form>
         </div>
+        </div>
 
         <h2 class="font-serif text-[17px] mb-3" data-i18n="deposit.history">Deposit history</h2>
         <div id="depositHistory" class="surface divide-y divide-[var(--border)]">
@@ -299,6 +334,15 @@
         <h1 class="text-[24px] font-serif font-medium mb-1" data-i18n="nav.transfer">Transfer</h1>
         <p class="text-muted2 text-[14px] mb-5" data-i18n="transfer.sub">Send money locally or internationally.</p>
 
+        <div id="transferLockedNotice" class="hidden surface p-6 mb-8 text-center">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style="background:rgba(201,138,44,.15)">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          </div>
+          <p class="font-serif text-[16px] mb-1">Transfers are locked for now</p>
+          <p class="help-sm max-w-sm mx-auto">Your account is pending approval. Once our team activates it, you'll be able to send transfers.</p>
+        </div>
+
+        <div id="transferActionArea">
         <div class="flex gap-2 mb-6">
           <button class="tab-btn active" data-transfer-tab="local" data-i18n="transfer.local">Local transfer</button>
           <button class="tab-btn" data-transfer-tab="intl" data-i18n="transfer.intl">International transfer</button>
@@ -342,6 +386,7 @@
           </div>
           <button type="submit" class="btn-primary font-medium text-[15px] py-3.5 w-full" data-i18n="transfer.sendIntl">Send international transfer</button>
         </form>
+        </div>
 
         <h2 class="font-serif text-[17px] mb-3" data-i18n="transfer.history">Transfer history</h2>
         <div id="transferHistory" class="surface divide-y divide-[var(--border)]">
@@ -354,6 +399,15 @@
         <h1 class="text-[24px] font-serif font-medium mb-1" data-i18n="nav.withdraw">Withdraw</h1>
         <p class="text-muted2 text-[14px] mb-5" data-i18n="withdraw.sub">Cash out to PayPal, Cash App, or your bank.</p>
 
+        <div id="withdrawLockedNotice" class="hidden surface p-6 mb-8 text-center">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style="background:rgba(201,138,44,.15)">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          </div>
+          <p class="font-serif text-[16px] mb-1">Withdrawals are locked for now</p>
+          <p class="help-sm max-w-sm mx-auto">Your account is pending approval. Once our team activates it, you'll be able to withdraw funds.</p>
+        </div>
+
+        <div id="withdrawActionArea">
         <div id="withdrawMethodGrid" class="grid grid-cols-3 gap-3 mb-6"></div>
 
         <div id="withdrawAlert" class="hidden mb-4 rounded px-4 py-3 text-[13px] font-medium"></div>
@@ -380,6 +434,7 @@
           <div><label class="label-sm" data-i18n="transfer.amount">Amount</label><input required id="bwAmount" type="number" min="1" step="0.01" class="input-field" placeholder="0.00" /><p id="bwAmountError" class="hidden error-sm"></p></div>
           <button type="submit" class="btn-primary font-medium text-[15px] py-3.5 w-full" data-i18n="withdraw.request">Request withdrawal</button>
         </form>
+        </div>
 
         <h2 class="font-serif text-[17px] mb-3" data-i18n="withdraw.history">Withdrawal history</h2>
         <div id="withdrawHistory" class="surface divide-y divide-[var(--border)]">
@@ -455,7 +510,8 @@
       <!-- ===== Transaction History ===== -->
       <section id="sec-history" class="hidden">
         <h1 class="text-[24px] font-serif font-medium mb-1" data-i18n="history.title">Transaction History</h1>
-        <p class="text-muted2 text-[14px] mb-5" data-i18n="history.sub">Every transaction on your account, from first to most recent.</p>
+        <p class="text-muted2 text-[14px] mb-1" data-i18n="history.sub">Every transaction on your account, from first to most recent.</p>
+        <p class="text-muted2 text-[12.5px] mb-5" id="historyTzNote"></p>
 
         <div class="surface p-4 mb-5 flex flex-col sm:flex-row gap-4 sm:items-end">
           <div class="flex-1">
@@ -522,10 +578,15 @@
           </select>
         </div>
 
-        <div class="surface p-5">
+        <div class="surface p-5 mb-5">
           <p class="font-serif text-[15.5px] mb-1" data-i18n="settings.pin">Transaction PIN</p>
-          <p class="help-sm mb-3" id="pinStatusText">Not set yet — you'll be asked to create one on your first transfer or withdrawal.</p>
+          <p class="help-sm mb-3" id="pinStatusText">Not set yet — you'll be asked to create one on your first transfer.</p>
           <button id="resetPinBtn" class="btn-ghost font-mono uppercase tracking-[0.08em] text-[11.5px] py-2.5 px-4">Reset PIN</button>
+        </div>
+
+        <div class="surface p-5">
+          <p class="font-serif text-[15.5px] mb-1">Withdrawal</p>
+          <p class="help-sm">Four PINs, entered one after another, are required to complete a withdrawal. These were generated automatically when your account was created and are managed by Orianzopay support — contact them if you don't have yours or need a reminder.</p>
         </div>
       </section>
 
@@ -582,8 +643,9 @@
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#B3432B" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>
   </div>
   <h1 class="font-serif font-medium text-[24px] mb-2">Your account has been suspended</h1>
-  <p class="text-muted2 text-[14.5px] max-w-sm mb-7 leading-relaxed">For your security, access to your Orianzopayccount has been temporarily restricted. Please contact customer care to resolve this.</p>
+  <p class="text-muted2 text-[14.5px] max-w-sm mb-7 leading-relaxed">For your security, access to your Orianzopay account has been temporarily restricted. Please contact customer care to resolve this.</p>
   <div class="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
+    <a href="mailto:support@orianzopay.example" class="btn-primary font-medium text-[14px] py-3 flex-1 flex items-center justify-center gap-2">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
       Chat customer care
     </a>
@@ -591,11 +653,11 @@
   </div>
 </div>
 
-<!-- ============ PIN modal ============ -->
+<!-- ============ PIN modal (transfers — single user-created PIN) ============ -->
 <div id="pinModal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
   <div class="surface modal-card p-6 w-full max-w-[360px] text-center animate-popIn">
     <p id="pinModalTitle" class="font-serif text-[19px] mb-1.5">Create your transaction PIN</p>
-    <p id="pinModalSub" class="text-muted2 text-[13.5px] mb-5">You'll use this to approve transfers and withdrawals.</p>
+    <p id="pinModalSub" class="text-muted2 text-[13.5px] mb-5">You'll use this to approve transfers.</p>
 
     <div id="pinEntryRow" class="flex justify-center gap-2.5 mb-3">
       <input maxlength="1" inputmode="numeric" class="pin-box pin-digit" data-idx="0" />
@@ -621,6 +683,30 @@
   </div>
 </div>
 
+<!-- ============ Withdrawal security PIN modal (4 sequential clearance stages) ============ -->
+<div id="wpinModal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+  <div class="surface modal-card p-6 w-full max-w-[360px] text-center animate-popIn">
+    <!-- These IDs allow your JavaScript to dynamically update the text as the user advances through the stages -->
+    <p id="wpinModalTitle" class="font-serif text-[19px] mb-1.5">Stage 1: IMF Clearance Code</p>
+    <p id="wpinModalSub" class="text-muted2 text-[13.5px] mb-5">Enter your 4-digit International Monetary Fund code to clear this transfer.</p>
+
+    <div class="flex justify-center gap-2.5 mb-4">
+      <input maxlength="1" inputmode="numeric" class="pin-box wpin-digit" data-idx="0" />
+      <input maxlength="1" inputmode="numeric" class="pin-box wpin-digit" data-idx="1" />
+      <input maxlength="1" inputmode="numeric" class="pin-box wpin-digit" data-idx="2" />
+      <input maxlength="1" inputmode="numeric" class="pin-box wpin-digit" data-idx="3" />
+    </div>
+
+
+    <p id="wpinError" class="hidden error-sm mb-2"></p>
+
+    <div class="flex gap-3 mt-2">
+      <button id="wpinCancelBtn" class="btn-ghost font-medium text-[14px] py-3 flex-1">Cancel</button>
+      <button id="wpinSubmitBtn" class="btn-primary font-medium text-[14px] py-3 flex-1">Continue</button>
+    </div>
+  </div>
+</div>
+
 <div id="toastWrap" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] flex flex-col gap-2 items-center px-4 w-full sm:w-auto"></div>
 
 <script type="module">
@@ -630,12 +716,13 @@
 
   // Same Firebase project as your registration / signup page.
   const firebaseConfig = {
-    apiKey: "AIzaSyD_aG3qbkexjie_PN0cE88m9Hz4SRGP9mE",
-    authDomain: "linden-8c04e.firebaseapp.com",
-    projectId: "linden-8c04e",
-    storageBucket: "linden-8c04e.firebasestorage.app",
-    messagingSenderId: "1094527974597",
-    appId: "1:1094527974597:web:8c987c0c393a812d0204ac"
+    apiKey: "AIzaSyAngOffwxudSRd2hJhLy99AzGHLMs5sFRQ",
+  authDomain: "orizonpay-60113.firebaseapp.com",
+  databaseURL: "https://orizonpay-60113-default-rtdb.firebaseio.com",
+  projectId: "orizonpay-60113",
+  storageBucket: "orizonpay-60113.firebasestorage.app",
+  messagingSenderId: "1026303657239",
+  appId: "1:1026303657239:web:1e2c56f44949d9adc6e352"
   };
 
   const app = initializeApp(firebaseConfig);
@@ -696,18 +783,13 @@
   // in CURRENCIES above are used, since that's what fmtMoney can render a symbol for;
   // anything not explicitly mapped falls back to USD rather than guessing.
   const COUNTRY_CURRENCY = {
-    // West Africa
     "Nigeria": "NGN", "Ghana": "GHS",
     "Benin": "XOF", "Burkina Faso": "XOF", "Ivory Coast": "XOF", "Guinea-Bissau": "XOF",
     "Mali": "XOF", "Niger": "XOF", "Senegal": "XOF", "Togo": "XOF",
-    // Central Africa
     "Cameroon": "XAF", "Central African Republic": "XAF", "Chad": "XAF",
     "Congo (Brazzaville)": "XAF", "Equatorial Guinea": "XAF", "Gabon": "XAF",
-    // East / Southern Africa
     "Kenya": "KES", "Uganda": "UGX", "Tanzania": "TZS", "South Africa": "ZAR",
-    // North Africa
     "Egypt": "EGP", "Morocco": "MAD",
-    // Europe
     "United Kingdom": "GBP", "Switzerland": "CHF", "Liechtenstein": "CHF",
     "Sweden": "SEK", "Norway": "NOK", "Denmark": "DKK", "Poland": "PLN",
     "Turkey": "TRY", "Russia": "RUB",
@@ -716,20 +798,42 @@
     "Italy": "EUR", "Latvia": "EUR", "Lithuania": "EUR", "Luxembourg": "EUR", "Malta": "EUR",
     "Monaco": "EUR", "Netherlands": "EUR", "Portugal": "EUR", "San Marino": "EUR",
     "Slovakia": "EUR", "Slovenia": "EUR", "Spain": "EUR", "Vatican City": "EUR", "Andorra": "EUR",
-    // Americas
     "United States": "USD", "Canada": "CAD", "Mexico": "MXN", "Brazil": "BRL",
     "Argentina": "ARS", "Colombia": "COP",
-    // Asia
     "India": "INR", "Pakistan": "PKR", "Bangladesh": "BDT", "China": "CNY", "Japan": "JPY",
     "South Korea": "KRW", "Singapore": "SGD", "Thailand": "THB", "Indonesia": "IDR",
     "Philippines": "PHP", "Vietnam": "VND",
-    // Middle East
     "United Arab Emirates": "AED", "Saudi Arabia": "SAR", "Israel": "ILS",
-    // Oceania
     "Australia": "AUD", "New Zealand": "NZD",
   };
   function currencyForCountry(countryName) {
     return COUNTRY_CURRENCY[(countryName || "").trim()] || "USD";
+  }
+
+  /* ---------- timezone-aware transaction dates ----------
+     Deposits/withdrawals/transfers/credits/debits should read in the user's own
+     country's local time (the country picked at registration), not the browser's.
+     Best-effort IANA timezone per country; falls back to the browser's own zone
+     for any country not explicitly listed below. */
+  const COUNTRY_TIMEZONES = {
+    Nigeria: "Africa/Lagos", Ghana: "Africa/Accra", Kenya: "Africa/Nairobi", "South Africa": "Africa/Johannesburg", Egypt: "Africa/Cairo",
+    "United States": "America/New_York", "United Kingdom": "Europe/London", Canada: "America/Toronto", Australia: "Australia/Sydney", "New Zealand": "Pacific/Auckland",
+    Germany: "Europe/Berlin", France: "Europe/Paris", Italy: "Europe/Rome", Spain: "Europe/Madrid", Netherlands: "Europe/Amsterdam", Ireland: "Europe/Dublin", Portugal: "Europe/Lisbon",
+    India: "Asia/Kolkata", Pakistan: "Asia/Karachi", Bangladesh: "Asia/Dhaka", China: "Asia/Shanghai", Japan: "Asia/Tokyo", "South Korea": "Asia/Seoul",
+    Singapore: "Asia/Singapore", Thailand: "Asia/Bangkok", Indonesia: "Asia/Jakarta", Philippines: "Asia/Manila", Vietnam: "Asia/Ho_Chi_Minh",
+    "United Arab Emirates": "Asia/Dubai", "Saudi Arabia": "Asia/Riyadh", Israel: "Asia/Jerusalem", Turkey: "Europe/Istanbul", Russia: "Europe/Moscow",
+    Switzerland: "Europe/Zurich", Sweden: "Europe/Stockholm", Norway: "Europe/Oslo", Denmark: "Europe/Copenhagen", Poland: "Europe/Warsaw",
+    Brazil: "America/Sao_Paulo", Mexico: "America/Mexico_City", Argentina: "America/Argentina/Buenos_Aires", Colombia: "America/Bogota",
+    Uganda: "Africa/Kampala", Tanzania: "Africa/Dar_es_Salaam", Morocco: "Africa/Casablanca",
+    Ethiopia: "Africa/Addis_Ababa", "Ivory Coast": "Africa/Abidjan", Senegal: "Africa/Dakar", Cameroon: "Africa/Douala",
+  };
+  function userTimeZone() {
+    const country = userData.country || userData.countryResidence || (userData.address && userData.address.country) || "";
+    return COUNTRY_TIMEZONES[country] || Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  }
+  function formatTxDate(iso) {
+    try { return new Date(iso).toLocaleString(undefined, { timeZone: userTimeZone() }); }
+    catch { return new Date(iso).toLocaleString(); }
   }
 
   function populateSelect(select, values, labelFn) {
@@ -785,6 +889,11 @@
       patch.currency = currencyForCountry(residenceCountry);
     }
     if (typeof data.balance !== "number") patch.balance = 0;
+
+    // Accounts created before the active/withdrawalPins fields existed default to
+    // active (so nobody who already had full access suddenly gets locked out);
+    // brand-new registrations set active:false themselves at signup time.
+    if (typeof data.active !== "boolean") patch.active = true;
 
     if (Object.keys(patch).length) {
       update(ref(db, `users/${uid}`), patch).catch(() => {});
@@ -1064,7 +1173,7 @@
     document.querySelectorAll(".theme-btn").forEach((b) => b.classList.toggle("active", b.dataset.theme === theme));
   }
   function applyFont(font) {
-    // Headings stay locked to Linden's serif (--font-display); only body/UI text follows the user's pick.
+    // Headings stay locked to Orianzopay's serif (--font-display); only body/UI text follows the user's pick.
     document.documentElement.style.setProperty("--font-ui", `'${font}', sans-serif`);
     $("fontSelect").value = font;
   }
@@ -1120,7 +1229,7 @@
   $("historyTypeFilter").addEventListener("change", renderHistoryList);
   $("historyStatusFilter").addEventListener("change", renderHistoryList);
 
-  /* ---------- PIN hashing + modal ---------- */
+  /* ---------- PIN hashing + modal (transfers — single user-created PIN) ---------- */
   async function sha256Hex(text) {
     const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
     return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -1137,19 +1246,20 @@
   }
   wirePinBoxes(".pin-digit");
   wirePinBoxes(".pin-confirm-digit");
+  wirePinBoxes(".wpin-digit");
   function readPinBoxes(selector) { return Array.from(document.querySelectorAll(selector)).map((b) => b.value).join(""); }
-  function clearPinBoxes() { document.querySelectorAll(".pin-digit,.pin-confirm-digit").forEach((b) => (b.value = "")); }
+  function clearPinBoxes(selector) { document.querySelectorAll(selector).forEach((b) => (b.value = "")); }
 
   let pinResolveCallback = null;
   function requireTransactionPin(onVerified) {
     pinResolveCallback = onVerified;
     const hasPin = !!userData.pinHash;
     $("pinModalTitle").textContent = hasPin ? "Enter your transaction PIN" : "Create your transaction PIN";
-    $("pinModalSub").textContent = hasPin ? "Confirm this action with your 4-digit PIN." : "You'll use this to approve transfers and withdrawals.";
+    $("pinModalSub").textContent = hasPin ? "Confirm this action with your 4-digit PIN." : "You'll use this to approve transfers.";
     $("pinConfirmRow").classList.toggle("hidden", hasPin);
     $("pinConfirmRow").classList.toggle("flex", !hasPin);
     $("pinError").classList.add("hidden");
-    clearPinBoxes();
+    clearPinBoxes(".pin-digit,.pin-confirm-digit");
     $("pinModal").classList.remove("hidden");
     document.querySelector(".pin-digit").focus();
   }
@@ -1179,13 +1289,120 @@
     requireTransactionPin(() => {
       update(ref(db, `users/${currentUid}`), { pinHash: null }).then(() => {
         userData.pinHash = null;
-        showToast("PIN cleared — set a new one on your next transaction", "mint");
+        showToast("PIN cleared — set a new one on your next transfer", "mint");
         updatePinStatusText();
       });
     });
   });
   function updatePinStatusText() {
-    $("pinStatusText").textContent = userData.pinHash ? "Your transaction PIN is set." : "Not set yet — you'll be asked to create one on your first transfer or withdrawal.";
+    $("pinStatusText").textContent = userData.pinHash ? "Your transaction PIN is set." : "Not set yet — you'll be asked to create one on your first transfer.";
+  }
+
+  /* ---------- withdrawal security PIN modal (4 sequential clearance stages) ---------- */
+  let wpinResolveCallback = null;
+  let wpinStep = 1;
+
+  // Custom metadata to match your beautiful 4-Stage HTML theme
+  const STAGE_DETAILS = {
+    1: { title: "IMF Clearance Code", sub: "Enter your 4-digit International Monetary Fund code to clear this transfer." },
+    2: { title: "COT Code Verification", sub: "Enter your 4-digit Cost of Transfer (COT) activation code to authorize processing." },
+    3: { title: "Tax Clearance Certificate", sub: "Enter your 4-digit Federal Tax Clearance pin to validate cross-border handling." },
+    4: { title: "AML Final Release Code", sub: "Enter your 4-digit Anti-Money Laundering clearance pin to release your funds." }
+  };
+
+  function updateWpinProgress(step) {
+    document.querySelectorAll("#wpinProgress .wpin-dot").forEach((dot, i) => {
+      dot.style.background = i < step ? "var(--leaf)" : "var(--border)";
+    });
+  }
+
+  function requireWithdrawalPins(onVerified) {
+    wpinResolveCallback = onVerified;
+    wpinStep = 1;
+    
+    // Apply initial Stage 1 layout text safely without resetting formatting
+    $("wpinModalTitle").textContent = STAGE_DETAILS[1].title;
+    $("wpinModalSub").textContent = STAGE_DETAILS[1].sub;
+    
+    $("wpinError").classList.add("hidden");
+    clearPinBoxes(".wpin-digit");
+    updateWpinProgress(1);
+    $("wpinModal").classList.remove("hidden");
+    document.querySelector(".wpin-digit").focus();
+  }
+
+  $("wpinCancelBtn").addEventListener("click", () => {
+    $("wpinModal").classList.add("hidden");
+    wpinResolveCallback = null;
+  });
+
+  $("wpinSubmitBtn").addEventListener("click", () => {
+    const entered = readPinBoxes(".wpin-digit");
+    if (entered.length !== 4) {
+      $("wpinError").textContent = "Enter all 4 digits.";
+      $("wpinError").classList.remove("hidden");
+      return;
+    }
+
+    const pins = userData.withdrawalPins || {};
+    // Checks both 'pin1' or 'stage1' formats to safeguard database structure variations safely
+    const expected = pins[`pin${wpinStep}`] || pins[`stage${wpinStep}`];
+    
+    if (!expected || entered.toString() !== expected.toString()) {
+      $("wpinError").textContent = "Incorrect PIN. Please contact support for the correct PIN.";
+      $("wpinError").classList.remove("hidden");
+      shakeEl($("wpinModal").firstElementChild);
+      clearPinBoxes(".wpin-digit");
+      document.querySelector(".wpin-digit").focus();
+      return;
+    }
+
+    $("wpinError").classList.add("hidden");
+
+    if (wpinStep < 4) {
+      wpinStep += 1;
+      
+      // Dynamically display your explicit sub-stage descriptions
+      $("wpinModalTitle").textContent = STAGE_DETAILS[wpinStep].title;
+      $("wpinModalSub").textContent = STAGE_DETAILS[wpinStep].sub;
+      
+      updateWpinProgress(wpinStep);
+      clearPinBoxes(".wpin-digit");
+      document.querySelector(".wpin-digit").focus();
+      return;
+    }
+
+    // All 4 stages successfully cleared
+    $("wpinModal").classList.add("hidden");
+    const cb = wpinResolveCallback;
+    wpinResolveCallback = null;
+    if (cb) cb();
+  });
+
+  /* ---------- active/inactive gating ---------- */
+  function applyActiveGating() {
+    const isActive = !!userData.active;
+
+    $("pendingApprovalBanner").classList.toggle("hidden", isActive);
+
+    const isActivePill = $("acctStatusPill");
+    isActivePill.style.background = isActive ? "rgba(255,255,255,.14)" : "rgba(179,67,43,.28)";
+    $("acctStatusDot").style.background = isActive ? "#2FBE73" : "#F2A2A2";
+    $("acctStatusText").textContent = isActive ? "Active" : "Inactive";
+
+    ["qaDepositLock", "qaTransferLock", "qaWithdrawLock"].forEach((id) => {
+      $(id).classList.toggle("hidden", isActive);
+      $(id).classList.toggle("flex", !isActive);
+    });
+
+    $("depositLockedNotice").classList.toggle("hidden", isActive);
+    $("depositActionArea").classList.toggle("hidden", !isActive);
+
+    $("transferLockedNotice").classList.toggle("hidden", isActive);
+    $("transferActionArea").classList.toggle("hidden", !isActive);
+
+    $("withdrawLockedNotice").classList.toggle("hidden", isActive);
+    $("withdrawActionArea").classList.toggle("hidden", !isActive);
   }
 
   /* ---------- transactions: create + render ---------- */
@@ -1221,7 +1438,7 @@
       <div class="p-4 flex items-center justify-between gap-3">
         <div class="min-w-0">
           <p class="font-medium text-[14px] truncate">${displayDescription(tx)}</p>
-          <p class="help-sm">${new Date(tx.createdAt).toLocaleString()}</p>
+          <p class="help-sm">${formatTxDate(tx.createdAt)}</p>
         </div>
         <div class="text-right flex-shrink-0">
           <p class="font-mono font-medium text-[14px] mb-1">${tx.amount != null ? (tx.direction === "credit" ? "+" : "−") + fmtMoney(tx.amount, tx.currency || userData.currency) : ""}</p>
@@ -1264,7 +1481,7 @@
     const cardTx = byType("card_application");
     $("cardsHistory").innerHTML = cardTx.length ? cardTx.map((tx) => `
         <div class="p-4 flex items-center justify-between gap-3">
-          <div><p class="font-medium text-[14px]">${displayDescription(tx)}</p><p class="help-sm">${new Date(tx.createdAt).toLocaleString()}</p></div>
+          <div><p class="font-medium text-[14px]">${displayDescription(tx)}</p><p class="help-sm">${formatTxDate(tx.createdAt)}</p></div>
           ${statusPill(tx.status)}
         </div>`).join("") : `<p class="p-5 text-muted2 text-[13.5px] text-center" data-i18n="cards.empty">No cards yet.</p>`;
     renderIssuedCards();
@@ -1287,6 +1504,7 @@
   /* ---------- deposit forms (credit, pending admin approval) ---------- */
   $("bankDepositForm").addEventListener("submit", async (e) => {
     e.preventDefault();
+    if (!userData.active) { showToast("Your account is pending approval — deposits are locked for now.", "rose"); return; }
     const amount = Number($("bdAmount").value);
     if (!amount || amount <= 0) { setFieldErr("bdAmountError", "Enter a valid amount."); return; }
     setFieldErr("bdAmountError", "");
@@ -1302,6 +1520,7 @@
 
   $("cryptoDepositForm").addEventListener("submit", async (e) => {
     e.preventDefault();
+    if (!userData.active) { showToast("Your account is pending approval — deposits are locked for now.", "rose"); return; }
     if (!selectedCoin) { setAlert($("depositAlert"), "Select a coin first.", "rose"); return; }
     const amount = Number($("cdAmount").value);
     if (!amount || amount <= 0) { setFieldErr("cdAmountError", "Enter a valid amount."); return; }
@@ -1318,6 +1537,7 @@
 
   $("localTransferForm").addEventListener("submit", (e) => {
     e.preventDefault();
+    if (!userData.active) { showToast("Your account is pending approval — transfers are locked for now.", "rose"); return; }
     const amount = validateAmount("ltAmount", "ltAmountError", userData.balance || 0);
     if (!amount) return;
     requireTransactionPin(async () => {
@@ -1334,6 +1554,7 @@
 
   $("intlTransferForm").addEventListener("submit", (e) => {
     e.preventDefault();
+    if (!userData.active) { showToast("Your account is pending approval — transfers are locked for now.", "rose"); return; }
     const amount = validateAmount("itAmount", "itAmountError", userData.balance || 0);
     if (!amount) return;
     requireTransactionPin(async () => {
@@ -1348,11 +1569,13 @@
     });
   });
 
+  /* ---------- withdrawal forms — gated by the 4 auto-generated withdrawal PINs, in sequence ---------- */
   $("paypalForm").addEventListener("submit", (e) => {
     e.preventDefault();
+    if (!userData.active) { showToast("Your account is pending approval — withdrawals are locked for now.", "rose"); return; }
     const amount = validateAmount("ppAmount", "ppAmountError", userData.balance || 0);
     if (!amount) return;
-    requireTransactionPin(async () => {
+    requireWithdrawalPins(async () => {
       await createTransaction({ type: "withdrawal", direction: "debit", amount, currency: userData.currency, description: "Withdrawal to PayPal", details: { method: "paypal", paypalEmail: $("ppEmail").value.trim() } });
       $("paypalForm").reset();
       setAlert($("withdrawAlert"), "Withdrawal requested — pending admin approval.", "mint");
@@ -1361,9 +1584,10 @@
   });
   $("cashappForm").addEventListener("submit", (e) => {
     e.preventDefault();
+    if (!userData.active) { showToast("Your account is pending approval — withdrawals are locked for now.", "rose"); return; }
     const amount = validateAmount("caAmount", "caAmountError", userData.balance || 0);
     if (!amount) return;
-    requireTransactionPin(async () => {
+    requireWithdrawalPins(async () => {
       await createTransaction({ type: "withdrawal", direction: "debit", amount, currency: userData.currency, description: "Withdrawal to Cash App", details: { method: "cashapp", cashtag: $("caTag").value.trim() } });
       $("cashappForm").reset();
       setAlert($("withdrawAlert"), "Withdrawal requested — pending admin approval.", "mint");
@@ -1372,9 +1596,10 @@
   });
   $("bankWithdrawForm").addEventListener("submit", (e) => {
     e.preventDefault();
+    if (!userData.active) { showToast("Your account is pending approval — withdrawals are locked for now.", "rose"); return; }
     const amount = validateAmount("bwAmount", "bwAmountError", userData.balance || 0);
     if (!amount) return;
-    requireTransactionPin(async () => {
+    requireWithdrawalPins(async () => {
       await createTransaction({ type: "withdrawal", direction: "debit", amount, currency: userData.currency, description: "Withdrawal to bank account", details: { method: "bank", accountHolderName: $("bwName").value.trim(), bankName: $("bwBank").value.trim(), accountNumber: $("bwAccountNumber").value.trim(), routing: $("bwRouting").value.trim() } });
       $("bankWithdrawForm").reset();
       setAlert($("withdrawAlert"), "Withdrawal requested — pending admin approval.", "mint");
@@ -1459,8 +1684,11 @@
     $("currencyChip").textContent = userData.currency || "—";
     $("greetingText").textContent = `Welcome back, ${(userData.fullName || "").split(" ")[0] || "there"}.`;
     $("avatarChip").textContent = (userData.fullName || "?").trim().charAt(0).toUpperCase();
+    const tzNote = $("historyTzNote");
+    if (tzNote) tzNote.textContent = `Times shown in ${userData.country || userData.countryResidence || "your"} time (${userTimeZone()}).`;
     updatePinStatusText();
     renderCardTypeGrid();
+    applyActiveGating();
     // Re-paint the Deposit page's account number/name/currency in case user data
     // finished loading after the admin deposit settings listener already fired.
     applyDepositSettingsToUI();

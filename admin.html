@@ -85,6 +85,8 @@
   table.admin-table tr:last-child td{ border-bottom:none; }
   .row-hover:hover{ background:var(--surface-2); cursor:pointer; }
 
+  .pin-input{ text-align:center; letter-spacing:.1em; font-family:var(--font-mono); font-weight:700; }
+
   .spinner{ width:14px; height:14px; border-radius:50%; border:2px solid rgba(251,250,246,.35); border-top-color:var(--paper, #FBFAF6); animation:spin .7s linear infinite; display:inline-block; }
   @keyframes spin{ to{ transform:rotate(360deg); } }
 
@@ -133,7 +135,7 @@
     </div>
     <nav class="flex-1 space-y-1" id="navList">
       <div class="nav-item active" data-section="overview"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12 12 3l9 9M5 10v10h14V10"/></svg> Overview</div>
-      <div class="nav-item" data-section="users"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5M16.5 8.5A2.8 2.8 0 1 0 16.5 3M21 20c0-2.6-1.8-4.6-4.2-5.3"/></svg> Users</div>
+      <div class="nav-item" data-section="users"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5M16.5 8.5A2.8 2.8 0 1 0 16.5 3M21 20c0-2.6-1.8-4.6-4.2-5.3"/></svg> Users <span id="badgePendingUsers" class="ml-auto hidden pill pill-pending"></span></div>
       <div class="nav-item" data-section="deposits"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21V7m0 14-4.5-4.5M12 21l4.5-4.5M4 4h16"/></svg> Deposits <span id="badgeDeposits" class="ml-auto hidden pill pill-pending"></span></div>
       <div class="nav-item" data-section="transfers"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h13M7 7l4-4M7 7l4 4M17 17H4M17 17l-4-4M17 17l-4 4"/></svg> Transfers <span id="badgeTransfers" class="ml-auto hidden pill pill-pending"></span></div>
       <div class="nav-item" data-section="withdrawals"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3"/></svg> Withdrawals <span id="badgeWithdrawals" class="ml-auto hidden pill pill-pending"></span></div>
@@ -158,9 +160,10 @@
       <!-- ===== Overview ===== -->
       <section id="sec-overview">
         <p class="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--leaf)] mb-2">Overview</p>
-        <h1 class="font-serif font-medium text-[26px] mb-6">Snapshot of orianzopayight now.</h1>
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <h1 class="font-serif font-medium text-[26px] mb-6">Snapshot of Orianzopay right now.</h1>
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
           <div class="stat-card"><p class="help-sm mb-1">Total users</p><p id="statTotalUsers" class="font-serif font-medium text-[24px]">—</p></div>
+          <div class="stat-card"><p class="help-sm mb-1">Pending approval</p><p id="statPendingApproval" class="font-serif font-medium text-[24px]" style="color:var(--gold)">—</p></div>
           <div class="stat-card"><p class="help-sm mb-1">Suspended users</p><p id="statSuspended" class="font-serif font-medium text-[24px]">—</p></div>
           <div class="stat-card"><p class="help-sm mb-1">Total balances held</p><p id="statTotalBalance" class="font-serif font-medium text-[24px]">—</p></div>
           <div class="stat-card"><p class="help-sm mb-1">Pending actions</p><p id="statPending" class="font-serif font-medium text-[24px]" style="color:var(--gold)">—</p></div>
@@ -175,7 +178,7 @@
       <!-- ===== Users ===== -->
       <section id="sec-users" class="hidden">
         <h1 class="text-[24px] font-serif font-medium mb-1">Users</h1>
-        <p class="text-muted2 text-[14px] mb-4">Search, review, fund, or restrict any account.</p>
+        <p class="text-muted2 text-[14px] mb-4">Search, review, approve, fund, or restrict any account.</p>
         <input id="userSearch" class="input-field mb-5 max-w-sm" placeholder="Search by name, email, or account number…" />
         <div class="surface overflow-x-auto">
           <table class="admin-table"><thead><tr><th>Name</th><th>Email</th><th>Account #</th><th>Type</th><th>Balance</th><th>Status</th><th></th></tr></thead><tbody id="usersTableBody"></tbody></table>
@@ -238,7 +241,7 @@
           <p class="font-serif text-[16px] mb-1">Bank transfer details</p>
           <p class="help-sm mb-4">Leave account number, account name, or currency blank to keep showing each user's own — only fill these in if you want every user to see the same shared values instead.</p>
           <div class="grid sm:grid-cols-2 gap-4 mb-4">
-            <div><label class="label-sm">Bank name</label><input id="dsBankName" class="input-field" placeholder="orianzopay" /></div>
+            <div><label class="label-sm">Bank name</label><input id="dsBankName" class="input-field" placeholder="Orianzopay" /></div>
             <div><label class="label-sm">Help text shown to users</label><input id="dsBankHelp" class="input-field" placeholder="Send funds to this account, then confirm below." /></div>
           </div>
           <div class="grid sm:grid-cols-3 gap-4 mb-5">
@@ -298,6 +301,18 @@
       <div class="surface-2 p-3 col-span-2"><p class="help-sm mb-0.5">Address</p><p id="umAddress" class="font-medium text-[13.5px]">—</p></div>
     </div>
 
+    <!-- Account approval -->
+    <div class="surface-2 p-4 mb-4">
+      <p class="font-serif text-[15px] mb-1">Account approval</p>
+      <p class="help-sm mb-3">New accounts start inactive. Approve once you've verified the user's details to unlock their dashboard — deposits, transfers, and withdrawals stay locked until then.</p>
+      <div class="flex items-center gap-2 mb-3">
+        <span id="umActiveDot" class="w-2.5 h-2.5 rounded-full"></span>
+        <span id="umActiveText" class="text-[13.5px] font-medium">—</span>
+      </div>
+      <button id="umApproveBtn" class="btn-mint font-medium text-[13.5px] py-2.5 w-full">Approve &amp; activate account</button>
+      <button id="umDeactivateBtn" class="btn-ghost font-medium text-[13.5px] py-2.5 w-full hidden">Set back to inactive</button>
+    </div>
+
     <div class="surface-2 p-4 mb-4">
       <p class="font-serif text-[15px] mb-3">Adjust balance</p>
       <div class="flex gap-2 mb-3">
@@ -308,10 +323,29 @@
       <button id="umAdjustBtn" class="btn-primary font-medium text-[13.5px] py-2.5 w-full">Apply adjustment</button>
     </div>
 
-    <div class="flex gap-3 mb-5">
+    <!-- Withdrawal security PINs -->
+    <div class="surface-2 p-4 mb-4">
+      <p class="font-serif text-[15px] mb-1">Withdrawal security PINs</p>
+      <p class="help-sm mb-3">Auto-generated when the account was created. The user enters these 4 PINs, in order, before a withdrawal can go through. Share updates with the user out of band — never all at once, and never over an insecure channel.</p>
+      <div class="grid grid-cols-2 gap-3 mb-3">
+        <div><label class="label-sm">PIN 1</label><input id="umPin1" maxlength="4" inputmode="numeric" class="input-field pin-input" placeholder="0000" /></div>
+        <div><label class="label-sm">PIN 2</label><input id="umPin2" maxlength="4" inputmode="numeric" class="input-field pin-input" placeholder="0000" /></div>
+        <div><label class="label-sm">PIN 3</label><input id="umPin3" maxlength="4" inputmode="numeric" class="input-field pin-input" placeholder="0000" /></div>
+        <div><label class="label-sm">PIN 4</label><input id="umPin4" maxlength="4" inputmode="numeric" class="input-field pin-input" placeholder="0000" /></div>
+      </div>
+      <p id="umPinsError" class="hidden error-sm mb-2"></p>
+      <div class="flex gap-2">
+        <button id="umRegeneratePinsBtn" type="button" class="btn-ghost text-[12.5px] font-medium px-4 py-2.5 flex-1">Regenerate all</button>
+        <button id="umSavePinsBtn" type="button" class="btn-primary text-[12.5px] font-medium px-4 py-2.5 flex-1">Save PINs</button>
+      </div>
+    </div>
+
+    <div class="flex gap-3 mb-3">
       <button id="umSuspendBtn" class="btn-rose font-medium text-[13.5px] py-2.5 flex-1">Suspend account</button>
       <button id="umUnsuspendBtn" class="btn-mint font-medium text-[13.5px] py-2.5 flex-1 hidden">Unsuspend account</button>
     </div>
+
+    <button id="umDeleteBtn" class="btn-ghost font-medium text-[13.5px] py-2.5 w-full mb-5" style="color:var(--error); border-color:rgba(179,67,43,.3)">Delete account permanently</button>
 
     <p class="font-serif text-[15px] mb-2">Recent transactions</p>
     <div id="umTxList" class="surface-2 divide-y divide-[var(--border)] max-h-[220px] overflow-y-auto">
@@ -327,14 +361,15 @@
   import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getDatabase, ref, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  // Same Firebase project as the Linden registration page / user dashboard.
+  // Same Firebase project as the Orianzopay registration page / user dashboard.
   const firebaseConfig = {
-    apiKey: "AIzaSyD_aG3qbkexjie_PN0cE88m9Hz4SRGP9mE",
-    authDomain: "linden-8c04e.firebaseapp.com",
-    projectId: "linden-8c04e",
-    storageBucket: "linden-8c04e.firebasestorage.app",
-    messagingSenderId: "1094527974597",
-    appId: "1:1094527974597:web:8c987c0c393a812d0204ac"
+    apiKey: "AIzaSyAngOffwxudSRd2hJhLy99AzGHLMs5sFRQ",
+  authDomain: "orizonpay-60113.firebaseapp.com",
+  databaseURL: "https://orizonpay-60113-default-rtdb.firebaseio.com",
+  projectId: "orizonpay-60113",
+  storageBucket: "orizonpay-60113.firebasestorage.app",
+  messagingSenderId: "1026303657239",
+  appId: "1:1026303657239:web:1e2c56f44949d9adc6e352"
   };
 
   const ADMIN_EMAIL = "admin@gmail.com";
@@ -370,6 +405,14 @@
     const map = { pending: ["pill-pending", "Pending"], approved: ["pill-approved", "Approved"], rejected: ["pill-rejected", "Rejected"] };
     const [cls, label] = map[status] || map.pending;
     return `<span class="pill ${cls}">${label}</span>`;
+  }
+  // A user's overall status: suspended overrides everything; otherwise a
+  // freshly registered account is "Pending" (active === false) until an
+  // admin approves it, after which it reads "Active".
+  function userStatusPill(u) {
+    if (u.suspended) return `<span class="pill pill-suspended">Suspended</span>`;
+    if (!u.active) return `<span class="pill pill-pending">Pending</span>`;
+    return `<span class="pill pill-active">Active</span>`;
   }
   function txDetailsSummary(tx) {
     const d = tx.details || {};
@@ -468,6 +511,7 @@
   function renderOverview() {
     const users = Object.values(allUsers);
     $("statTotalUsers").textContent = users.length;
+    $("statPendingApproval").textContent = users.filter((u) => !u.active && !u.suspended).length;
     $("statSuspended").textContent = users.filter((u) => u.suspended).length;
     const totalBalance = users.reduce((sum, u) => sum + Number(u.balance || 0), 0);
     $("statTotalBalance").textContent = totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -480,6 +524,7 @@
     setBadge("badgeWithdrawals", pending.filter((t) => t.type === "withdrawal").length);
     setBadge("badgeCards", pending.filter((t) => t.type === "card_application").length);
     setBadge("badgeLoans", pending.filter((t) => t.type === "loan_application").length);
+    setBadge("badgePendingUsers", users.filter((u) => !u.active && !u.suspended).length);
 
     const recentPending = pending.slice(0, 8);
     $("overviewPendingEmpty").classList.toggle("hidden", recentPending.length > 0);
@@ -522,7 +567,7 @@
         <td class="font-mono">${u.accountNumber || "—"}</td>
         <td class="capitalize">${u.accountType || "—"}</td>
         <td class="font-mono">${fmtMoney(u.balance || 0, u.currency)}</td>
-        <td>${u.suspended ? `<span class="pill pill-suspended">Suspended</span>` : `<span class="pill pill-active">Active</span>`}</td>
+        <td>${userStatusPill(u)}</td>
         <td><button class="btn-ghost text-[12px] font-mono uppercase tracking-[0.06em] px-3 py-1.5" data-open-user="${uid}">View</button></td>
       </tr>`;
     }).join("");
@@ -625,6 +670,17 @@
     }
   }
 
+  /* ---------- withdrawal PIN helpers ---------- */
+  function randomPin() {
+    return String(Math.floor(1000 + Math.random() * 9000)); // 4 digits, 1000–9999
+  }
+  function wirePinInput(id) {
+    $(id).addEventListener("input", (e) => {
+      e.target.value = e.target.value.replace(/[^0-9]/g, "").slice(0, 4);
+    });
+  }
+  ["umPin1", "umPin2", "umPin3", "umPin4"].forEach(wirePinInput);
+
   /* ---------- user modal ---------- */
   function openUserModal(uid) {
     activeUid = uid;
@@ -639,11 +695,27 @@
     $("umPhone").textContent = u.phone || "—";
     $("umCountry").textContent = u.country || u.countryResidence || "—";
     $("umAddress").textContent = address || "—";
-    $("umStatus").textContent = u.suspended ? "Suspended" : "Active";
+    $("umStatus").textContent = u.suspended ? "Suspended" : (u.active ? "Active" : "Pending approval");
     $("umSuspendBtn").classList.toggle("hidden", !!u.suspended);
     $("umUnsuspendBtn").classList.toggle("hidden", !u.suspended);
     $("umAdjustAmount").value = "";
     $("umAdjustNote").value = "";
+
+    const isActive = !!u.active;
+    $("umActiveDot").className = `w-2.5 h-2.5 rounded-full ${isActive ? "" : ""}`;
+    $("umActiveDot").style.background = isActive ? "var(--leaf)" : "var(--error)";
+    $("umActiveText").textContent = isActive ? "Active" : "Inactive — pending approval";
+    $("umActiveText").style.color = isActive ? "var(--leaf)" : "var(--error)";
+    $("umApproveBtn").classList.toggle("hidden", isActive);
+    $("umDeactivateBtn").classList.toggle("hidden", !isActive);
+
+    const pins = u.withdrawalPins || {};
+    $("umPin1").value = pins.pin1 || "";
+    $("umPin2").value = pins.pin2 || "";
+    $("umPin3").value = pins.pin3 || "";
+    $("umPin4").value = pins.pin4 || "";
+    $("umPinsError").classList.add("hidden");
+
     renderUserTx(uid);
     $("userModal").classList.remove("hidden");
   }
@@ -681,6 +753,20 @@
     openUserModal(activeUid);
   });
 
+  /* ---------- approve / deactivate account ---------- */
+  $("umApproveBtn").addEventListener("click", async () => {
+    if (!activeUid) return;
+    await update(ref(db, `users/${activeUid}`), { active: true });
+    showToast("Account approved and activated", "mint");
+    openUserModal(activeUid);
+  });
+  $("umDeactivateBtn").addEventListener("click", async () => {
+    if (!activeUid) return;
+    await update(ref(db, `users/${activeUid}`), { active: false });
+    showToast("Account set back to inactive", "rose");
+    openUserModal(activeUid);
+  });
+
   $("umAdjustBtn").addEventListener("click", async () => {
     if (!activeUid) return;
     const amount = Number($("umAdjustAmount").value);
@@ -702,6 +788,67 @@
       showToast("Balance updated", "mint");
       $("umAdjustAmount").value = "";
       $("umAdjustNote").value = "";
+    } catch (err) {
+      showToast("Something went wrong — try again.", "rose");
+    }
+  });
+
+  /* ---------- withdrawal PIN actions ---------- */
+  $("umRegeneratePinsBtn").addEventListener("click", () => {
+    $("umPin1").value = randomPin();
+    $("umPin2").value = randomPin();
+    $("umPin3").value = randomPin();
+    $("umPin4").value = randomPin();
+    $("umPinsError").classList.add("hidden");
+  });
+
+  $("umSavePinsBtn").addEventListener("click", async () => {
+    if (!activeUid) return;
+    const pin1 = $("umPin1").value.trim();
+    const pin2 = $("umPin2").value.trim();
+    const pin3 = $("umPin3").value.trim();
+    const pin4 = $("umPin4").value.trim();
+    const allValid = [pin1, pin2, pin3, pin4].every((p) => /^\d{4}$/.test(p));
+    if (!allValid) {
+      $("umPinsError").textContent = "Each PIN must be exactly 4 digits.";
+      $("umPinsError").classList.remove("hidden");
+      return;
+    }
+    $("umPinsError").classList.add("hidden");
+    try {
+      await update(ref(db, `users/${activeUid}/withdrawalPins`), { pin1, pin2, pin3, pin4 });
+      showToast("Withdrawal PINs saved", "mint");
+    } catch (err) {
+      showToast("Something went wrong — try again.", "rose");
+    }
+  });
+
+  /* ---------- delete user permanently ---------- */
+  // Note: this only removes the user's profile + transaction records from the
+  // Realtime Database (and their reserved account number). It does NOT delete
+  // their Firebase Authentication credential — client-side code can't do that
+  // for security reasons. To fully remove someone, also delete their entry in
+  // Firebase Console → Authentication (or wire up a Cloud Function using the
+  // Admin SDK).
+  $("umDeleteBtn").addEventListener("click", async () => {
+    if (!activeUid) return;
+    const u = allUsers[activeUid] || {};
+    const name = u.fullName || [u.firstName, u.lastName].filter(Boolean).join(" ") || "this user";
+    const confirmed = confirm(
+      `Delete ${name}'s account?\n\nThis permanently removes their profile and transaction history from the database and cannot be undone. Their sign-in credentials are not affected — remove those separately in Firebase Authentication if needed.`
+    );
+    if (!confirmed) return;
+
+    const updates = {};
+    updates[`users/${activeUid}`] = null;
+    if (u.accountNumber) updates[`accountNumbers/${u.accountNumber}`] = null;
+    allTx.filter((t) => t.uid === activeUid).forEach((t) => { updates[`transactions/${t.id}`] = null; });
+
+    try {
+      await update(ref(db), updates);
+      showToast("User deleted", "mint");
+      $("userModal").classList.add("hidden");
+      activeUid = null;
     } catch (err) {
       showToast("Something went wrong — try again.", "rose");
     }
